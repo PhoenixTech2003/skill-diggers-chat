@@ -5,8 +5,7 @@ const features = [
   {
     icon: MessageSquare,
     title: "Real-time Chat",
-    description:
-      "Connect with developers worldwide in specialized programming rooms and channels.",
+    description: "Connect with local developers in rooms and channels.",
   },
   {
     icon: Users,
@@ -14,12 +13,7 @@ const features = [
     description:
       "Learn from experienced mentors and collaborate with peers on exciting projects.",
   },
-  {
-    icon: BookOpen,
-    title: "Knowledge Sharing",
-    description:
-      "Access tutorials, code snippets, and best practices shared by the community.",
-  },
+
   {
     icon: Zap,
     title: "Skill Building",
@@ -42,7 +36,7 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, index) => (
             <Card
               key={index}
