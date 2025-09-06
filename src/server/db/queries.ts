@@ -1,6 +1,6 @@
 import { db } from ".";
-import { rooms } from "./schema";
-import { ilike } from "drizzle-orm";
+import { messages, rooms } from "./schema";
+import { eq, ilike } from "drizzle-orm";
 
 export const getRooms = async function ({ query }: { query: string }) {
   try {
@@ -12,5 +12,18 @@ export const getRooms = async function ({ query }: { query: string }) {
   } catch (error) {
     console.log(error instanceof Error ? error.message : "Unknown error");
     return { roomData: null, roomDataError: error };
+  }
+};
+
+export const getRoomMessages = async function ({ roomId }: { roomId: string }) {
+  try {
+    const roomMessages = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.roomId, roomId));
+    return { roomMessages: roomMessages, roomMessagesError: null };
+  } catch (error) {
+    console.log(error instanceof Error ? error.message : "Unknown error");
+    return { roomMessages: null, roomMessagesError: error };
   }
 };
