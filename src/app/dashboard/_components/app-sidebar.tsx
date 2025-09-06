@@ -6,11 +6,8 @@ import { usePathname } from "next/navigation";
 import { Badge } from "~/components/ui/badge";
 import {
   Code2,
-  MessageSquare,
   Users,
-  Settings,
-  Shield,
-  BarChart3,
+  MessageSquare,
   UserPlus,
   Hash,
   ChevronDown,
@@ -44,12 +41,10 @@ const availableRooms = [
 ];
 
 const adminItems = [
-  { icon: Shield, label: "User Management", href: "/dashboard/admin/users" },
-  { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
   {
-    icon: Settings,
-    label: "Server Settings",
-    href: "/dashboard/admin/settings",
+    icon: MessageSquare,
+    label: "Room Management",
+    href: "/dashboard/admin/rooms",
   },
   { icon: UserPlus, label: "Invite Users", href: "/dashboard/admin/invites" },
 ];
