@@ -33,17 +33,6 @@ export function HeroSection() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
-
-            <div className="text-muted-foreground flex items-center justify-center gap-4 text-sm lg:justify-start">
-              <div className="flex items-center gap-2">
-                <div className="bg-primary h-2 w-2 rounded-full"></div>
-                <span>10,000+ Developers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-primary h-2 w-2 rounded-full"></div>
-                <span>50+ Programming Languages</span>
-              </div>
-            </div>
           </div>
 
           {/* Right Content - Programming Languages */}
