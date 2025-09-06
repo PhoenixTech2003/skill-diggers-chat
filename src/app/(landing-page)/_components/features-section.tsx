@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { MessageSquare, Users, BookOpen, Zap } from "lucide-react";
+import { MessageSquare, Users, Zap } from "lucide-react";
 
 const features = [
   {
