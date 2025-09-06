@@ -1,8 +1,5 @@
-"use client";
-
 import { Button } from "~/components/ui/button";
 import { SidebarTrigger } from "~/components/ui/sidebar";
-import { Settings, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +8,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
+import { auth } from "~/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { SignOutButton } from "./sign-out-button";
 
-export function DashboardHeader() {
+export async function DashboardHeader() {
+  const sessionData = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!sessionData) {
+    redirect("/auth/login");
+  }
+
+  const userData = sessionData.user;
+  const initials = (userData.name || "")
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   return (
     <header className="border-border bg-card flex h-16 items-center justify-between border-b px-6">
       {/* Left Section */}
@@ -26,28 +45,23 @@ export function DashboardHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full">
-                <span className="text-primary-foreground text-sm font-medium">
-                  JD
-                </span>
-              </div>
+              <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={userData.image ?? undefined}
+                  alt={userData.name ?? "User"}
+                />
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
               <span className="hidden text-sm font-medium md:block">
-                John Doe
+                {userData.name}
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />
-              Log out
+              <SignOutButton />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
