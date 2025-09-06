@@ -4,20 +4,27 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import GoogleIcon from "./google-icon";
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { authClient } from "~/lib/auth-client";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-
-    // Simulate Google OAuth process
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push("/dashboard");
-    }, 1500);
+    toast.promise(
+      authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard",
+      }),
+      {
+        loading: "Signing in...",
+        error: () => {
+          setIsLoading(false);
+          return "Failed to Sign in";
+        },
+      },
+    );
   };
 
   return (
