@@ -11,6 +11,7 @@
     "postinstall": "bun run db:generate && bun run db:migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "cg:install": "curl -sSLf https://centrifugal.dev/install.sh | sh && mv ./centrifugo ./src/server/centrifugo",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
