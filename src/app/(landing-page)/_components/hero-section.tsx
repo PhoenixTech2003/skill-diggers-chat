@@ -20,7 +20,7 @@ export function HeroSection() {
                 Brewing the Next Generation of{" "}
                 <span className="text-primary">Programmers</span>
               </h1>
-              <p className="text-muted-foreground max-w-2xl text-xl text-pretty">
+              <p className="text-muted-foreground mx-auto max-w-2xl text-xl text-pretty">
                 Join our tech-centered community where passionate developers
                 connect, learn, and grow together. Share knowledge, collaborate
                 on projects, and accelerate your programming journey.
