@@ -1,5 +1,5 @@
 import { Button } from "~/components/ui/button";
-import { ArrowRight, Github, Twitter } from "lucide-react";
+import { ArrowRight, Github } from "lucide-react";
 
 export function CTASection() {
   return (
@@ -20,13 +20,6 @@ export function CTASection() {
             Get Started Now
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="bg-transparent px-8 text-lg"
-          >
-            View Demo
-          </Button>
         </div>
 
         <div className="flex items-center justify-center gap-6 pt-8">
@@ -35,12 +28,6 @@ export function CTASection() {
             className="text-muted-foreground hover:text-primary transition-colors"
           >
             <Github className="h-6 w-6" />
-          </a>
-          <a
-            href="#"
-            className="text-muted-foreground hover:text-primary transition-colors"
-          >
-            <Twitter className="h-6 w-6" />
           </a>
         </div>
       </div>
