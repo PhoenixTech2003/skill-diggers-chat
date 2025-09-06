@@ -1,6 +1,6 @@
 import { Button } from "~/components/ui/button";
 import { ProgrammingLanguages } from "./programming-languages";
-import { ArrowRight, Code2 } from "lucide-react";
+import { ArrowRight, Code2, Link } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -28,10 +28,12 @@ export function HeroSection() {
             </div>
 
             <div className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
-              <Button size="lg" className="px-8 text-lg">
-                Join Community
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <Link href="/dashboard">
+                <Button size="lg" className="px-8 text-lg">
+                  Join Community
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
 
