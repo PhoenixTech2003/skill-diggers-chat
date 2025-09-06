@@ -10,7 +10,7 @@ export function CTASection() {
             Ready to Start Your Journey?
           </h2>
           <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
-            Join thousands of developers who are already building the future
+            Join local MUBAS developers who are already building the future
             together.
           </p>
         </div>

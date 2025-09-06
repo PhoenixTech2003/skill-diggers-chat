@@ -5,7 +5,7 @@ const features = [
   {
     icon: MessageSquare,
     title: "Real-time Chat",
-    description: "Connect with local developers in rooms and channels.",
+    description: "Connect with local MUBAS developers in rooms and channels.",
   },
   {
     icon: Users,
