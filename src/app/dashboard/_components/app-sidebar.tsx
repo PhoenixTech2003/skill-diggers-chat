@@ -6,9 +6,7 @@ import { usePathname } from "next/navigation";
 import { Badge } from "~/components/ui/badge";
 import {
   Code2,
-  Users,
   MessageSquare,
-  UserPlus,
   Hash,
   ChevronDown,
   ChevronRight,
@@ -24,12 +22,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "~/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
+import { AdminSidebarGroup } from "./admin-sidebar-group";
+import { authClient } from "~/lib/auth-client";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 const availableRooms = [
   { id: 1, name: "JavaScript", members: 1234, active: true },
@@ -40,19 +42,15 @@ const availableRooms = [
   { id: 6, name: "C++", members: 432, active: false },
 ];
 
-const adminItems = [
-  {
-    icon: MessageSquare,
-    label: "Room Management",
-    href: "/dashboard/admin/rooms",
-  },
-  { icon: UserPlus, label: "Invite Users", href: "/dashboard/admin/invites" },
-];
-
 export function AppSidebar() {
   const [roomsExpanded, setRoomsExpanded] = useState(true);
-  const [adminExpanded, setAdminExpanded] = useState(true);
   const pathname = usePathname();
+  const { data: session, isPending, error } = authClient.useSession();
+  const sessionErrorMessage = error
+    ? error instanceof Error
+      ? error.message
+      : String(error)
+    : null;
 
   return (
     <Sidebar>
@@ -64,6 +62,21 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {sessionErrorMessage && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <ul>
+                <li className="px-2">
+                  <Alert variant="destructive">
+                    <AlertTitle>Session error</AlertTitle>
+                    <AlertDescription>{sessionErrorMessage}</AlertDescription>
+                  </Alert>
+                </li>
+              </ul>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -72,17 +85,6 @@ export function AppSidebar() {
                   <Link href="/dashboard">
                     <MessageSquare className="h-4 w-4" />
                     <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/profile"}
-                >
-                  <Link href="/dashboard/profile">
-                    <Users className="h-4 w-4" />
-                    <span>Profile</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -105,66 +107,39 @@ export function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {availableRooms.map((room) => (
-                    <SidebarMenuItem key={room.id}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname === `/dashboard/rooms/${room.id}`}
-                      >
-                        <Link href={`/dashboard/rooms/${room.id}`}>
-                          <Hash className="h-3 w-3" />
-                          <span className="flex-1">{room.name}</span>
-                          <div className="flex items-center gap-1">
-                            {room.active && (
-                              <div className="h-2 w-2 rounded-full bg-green-500" />
-                            )}
-                            <Badge variant="secondary" className="text-xs">
-                              {room.members}
-                            </Badge>
-                          </div>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </SidebarGroup>
+                  {isPending &&
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <SidebarMenuSkeleton key={i} />
+                    ))}
 
-        <SidebarGroup>
-          <Collapsible open={adminExpanded} onOpenChange={setAdminExpanded}>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center justify-between">
-                Administration
-                {adminExpanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {adminItems.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.href}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className="h-3 w-3" />
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {!isPending &&
+                    availableRooms.map((room) => (
+                      <SidebarMenuItem key={room.id}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={pathname === `/dashboard/rooms/${room.id}`}
+                        >
+                          <Link href={`/dashboard/rooms/${room.id}`}>
+                            <Hash className="h-3 w-3" />
+                            <span className="flex-1">{room.name}</span>
+                            <div className="flex items-center gap-1">
+                              {room.active && (
+                                <div className="h-2 w-2 rounded-full bg-green-500" />
+                              )}
+                              <Badge variant="secondary" className="text-xs">
+                                {room.members}
+                              </Badge>
+                            </div>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </CollapsibleContent>
           </Collapsible>
         </SidebarGroup>
+        {session?.user?.role === "admin" && <AdminSidebarGroup />}
       </SidebarContent>
 
       <SidebarFooter>
@@ -175,7 +150,9 @@ export function AppSidebar() {
             </span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">John Doe</p>
+            <p className="truncate text-sm font-medium">
+              {session?.user?.name}
+            </p>
             <div className="flex items-center gap-1">
               <div className="h-2 w-2 rounded-full bg-green-500" />
               <p className="text-muted-foreground text-xs">Online</p>
