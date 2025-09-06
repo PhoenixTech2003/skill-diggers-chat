@@ -32,13 +32,6 @@ export function HeroSection() {
                 Join Community
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="bg-transparent px-8 text-lg"
-              >
-                Learn More
-              </Button>
             </div>
 
             <div className="text-muted-foreground flex items-center justify-center gap-4 text-sm lg:justify-start">
