@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation";
 
 const adminItems = [
   {
-    href: "/dashboard/admin/users",
+    href: "/dashboard/rooms/",
     label: "Rooms",
     icon: MessageSquare,
   },

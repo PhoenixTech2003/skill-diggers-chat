@@ -4,6 +4,7 @@ import { db } from "../index";
 import { createId } from "@paralleldrive/cuid2";
 import { rooms } from "./room";
 import { roomMember } from "./room-member";
+import type { CreateRoomParamType } from "~/types/rooms";
 
 export const createMessage = async function ({
   roomId,
@@ -127,6 +128,36 @@ export const deleteRoomMember = async function ({
       }
     });
     return deleteRoomMemberResult;
+  } catch (error) {
+    console.log(error instanceof Error ? error.message : "Unknown error");
+    throw error;
+  }
+};
+
+export const createRoom = async function ({
+  name,
+  userId,
+}: CreateRoomParamType) {
+  try {
+    const createRoomResult = await db.transaction(async (tx) => {
+      try {
+        const [createdRoom] = await tx
+          .insert(rooms)
+          .values({
+            id: createId(),
+            name,
+            createdBy: userId,
+          })
+          .returning();
+
+        return createdRoom;
+      } catch (error) {
+        console.log(error instanceof Error ? error.message : "Unknown error");
+        tx.rollback();
+        throw error;
+      }
+    });
+    return createRoomResult;
   } catch (error) {
     console.log(error instanceof Error ? error.message : "Unknown error");
     throw error;
