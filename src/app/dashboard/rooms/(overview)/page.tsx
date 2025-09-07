@@ -1,5 +1,5 @@
 import { getRooms } from "~/server/db/queries";
-import { RoomCard } from "../../(overview)/_components/room-card";
+import { ManagementRoomCard } from "./_components/management-room-card";
 import { CreateRoomDialog } from "./_components/create-room-dialog";
 import { redirect } from "next/navigation";
 import { auth } from "~/lib/auth";
@@ -13,6 +13,9 @@ export default async function RoomsManagementPage() {
   });
   if (!sessionData) {
     redirect("/auth/login");
+  }
+  if (sessionData.user.role !== "admin") {
+    redirect("/dashboard");
   }
   let content: React.ReactNode;
   if (roomDataError !== null) {
@@ -29,9 +32,7 @@ export default async function RoomsManagementPage() {
     content = (
       <div className="flex min-h-[40vh] items-center justify-center">
         <div className="bg-card mx-auto w-full max-w-md rounded-lg border p-6 text-center">
-          <p className="text-muted-foreground text-sm">
-            No rooms to manage yet. Create one to get started.
-          </p>
+          <p className="text-muted-foreground text-sm">No rooms available</p>
         </div>
       </div>
     );
@@ -44,7 +45,7 @@ export default async function RoomsManagementPage() {
             roomId: room.id,
           });
           return (
-            <RoomCard
+            <ManagementRoomCard
               key={room.id}
               id={room.id}
               name={room.name}

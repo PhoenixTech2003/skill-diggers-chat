@@ -163,3 +163,51 @@ export const createRoom = async function ({
     throw error;
   }
 };
+
+export const updateRoomName = async function ({
+  roomId,
+  name,
+}: {
+  roomId: string;
+  name: string;
+}) {
+  try {
+    const [updatedRoom] = await db
+      .update(rooms)
+      .set({
+        name,
+        version: sql`${rooms.version} + 1`,
+        bumpedAt: sql`now()`,
+      })
+      .where(eq(rooms.id, roomId))
+      .returning();
+    return updatedRoom;
+  } catch (error) {
+    console.log(error instanceof Error ? error.message : "Unknown error");
+    throw error;
+  }
+};
+
+export const deleteRoom = async function ({ roomId }: { roomId: string }) {
+  try {
+    const result = await db.transaction(async (tx) => {
+      try {
+        await tx.delete(messages).where(eq(messages.roomId, roomId));
+        await tx.delete(roomMember).where(eq(roomMember.roomId, roomId));
+        const [deleted] = await tx
+          .delete(rooms)
+          .where(eq(rooms.id, roomId))
+          .returning();
+        return deleted;
+      } catch (error) {
+        console.log(error instanceof Error ? error.message : "Unknown error");
+        tx.rollback();
+        throw error;
+      }
+    });
+    return result;
+  } catch (error) {
+    console.log(error instanceof Error ? error.message : "Unknown error");
+    throw error;
+  }
+};
