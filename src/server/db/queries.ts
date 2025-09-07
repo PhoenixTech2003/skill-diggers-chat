@@ -2,7 +2,7 @@ import { db } from ".";
 import { messages, rooms } from "./schema";
 import { eq, ilike } from "drizzle-orm";
 
-export const getRooms = async function ({ query }: { query: string }) {
+export const getRooms = async function ({ query = "" }: { query?: string }) {
   try {
     const roomData = await db
       .select()
