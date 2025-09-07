@@ -1,6 +1,7 @@
 import { Button } from "~/components/ui/button";
 import { ProgrammingLanguages } from "./programming-languages";
-import { ArrowRight, Code2, Link } from "lucide-react";
+import { ArrowRight, Code2 } from "lucide-react";
+import Link from "next/link";
 
 export function HeroSection() {
   return (

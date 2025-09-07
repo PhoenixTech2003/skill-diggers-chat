@@ -3,8 +3,19 @@ import { HeroSection } from "./_components/hero-section";
 import { FeaturesSection } from "./_components/features-section";
 import { CTASection } from "./_components/cta-section";
 import { LoadingSkeleton } from "./_components/loading-skeleton";
+import { auth } from "~/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="bg-background min-h-screen">
       <Suspense fallback={<LoadingSkeleton />}>

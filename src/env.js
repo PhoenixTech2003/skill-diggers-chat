@@ -21,7 +21,8 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_BETTER_AUTH_URL: z.string().url(),
+    NEXT_PUBLIC_SOCKET_IO_WEB_SERVER_URL: z.url(),
+    NEXT_PUBLIC_BETTER_AUTH_URL: z.url(),
   },
 
   /**
@@ -33,6 +34,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_SOCKET_IO_WEB_SERVER_URL:
+      process.env.NEXT_PUBLIC_SOCKET_IO_WEB_SERVER_URL,
     NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   },
   /**
