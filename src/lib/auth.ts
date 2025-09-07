@@ -17,5 +17,14 @@ export const auth = betterAuth({
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
   },
-  plugins: [admin(), jwt()],
+  plugins: [
+    admin(),
+    jwt({
+      jwks: {
+        keyPairConfig: {
+          alg: "RS256",
+        },
+      },
+    }),
+  ],
 });

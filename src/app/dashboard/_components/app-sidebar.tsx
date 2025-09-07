@@ -32,7 +32,7 @@ import {
 import { AdminSidebarGroup } from "./admin-sidebar-group";
 import { authClient } from "~/lib/auth-client";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { SidebarFooterUser } from "./sidebar-footer";
 
 const availableRooms = [
   { id: 1, name: "JavaScript", members: 1234, active: true },
@@ -52,13 +52,6 @@ export function AppSidebar() {
       ? error.message
       : String(error)
     : null;
-  const initials = (session?.user?.name ?? "")
-    .split(" ")
-    .map((n) => n[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 
   return (
     <Sidebar>
@@ -151,24 +144,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="flex items-center gap-3 p-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={session?.user?.image ?? undefined}
-              alt={session?.user?.name ?? "User"}
-            />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">
-              {session?.user?.name}
-            </p>
-            <div className="flex items-center gap-1">
-              <div className="h-2 w-2 rounded-full bg-green-500" />
-              <p className="text-muted-foreground text-xs">Online</p>
-            </div>
-          </div>
-        </div>
+        <SidebarFooterUser />
       </SidebarFooter>
     </Sidebar>
   );
