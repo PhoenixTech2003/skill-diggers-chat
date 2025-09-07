@@ -8,6 +8,13 @@
       "when": 1757167444119,
       "tag": "0000_fine_the_enforcers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1757243833232,
+      "tag": "0001_milky_butterfly",
+      "breakpoints": true
     }
   ]
 }

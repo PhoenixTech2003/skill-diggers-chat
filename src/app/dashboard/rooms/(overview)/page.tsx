@@ -1,17 +1,21 @@
 import { getRooms } from "~/server/db/queries";
-import { RoomCard } from "./_components/room-card";
-import { isUserInRoom } from "~/lib/room-helpers";
+import { ManagementRoomCard } from "./_components/management-room-card";
+import { CreateRoomDialog } from "./_components/create-room-dialog";
+import { redirect } from "next/navigation";
 import { auth } from "~/lib/auth";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { isUserInRoom } from "~/lib/room-helpers";
 
-export default async function DashboardOverviewPage() {
+export default async function RoomsManagementPage() {
   const { roomData, roomDataError } = await getRooms({ query: "" });
   const sessionData = await auth.api.getSession({
     headers: await headers(),
   });
   if (!sessionData) {
     redirect("/auth/login");
+  }
+  if (sessionData.user.role !== "admin") {
+    redirect("/dashboard");
   }
   let content: React.ReactNode;
   if (roomDataError !== null) {
@@ -24,14 +28,11 @@ export default async function DashboardOverviewPage() {
         </div>
       </div>
     );
-  } else if (!roomData || roomData.length === 0) {
+  } else if (roomData === null || roomData.length === 0) {
     content = (
       <div className="flex min-h-[40vh] items-center justify-center">
         <div className="bg-card mx-auto w-full max-w-md rounded-lg border p-6 text-center">
-          <p className="text-muted-foreground text-sm">
-            Hmm... looks like there are no rooms yet. Might want to talk to the
-            admins about this
-          </p>
+          <p className="text-muted-foreground text-sm">No rooms available</p>
         </div>
       </div>
     );
@@ -44,7 +45,7 @@ export default async function DashboardOverviewPage() {
             roomId: room.id,
           });
           return (
-            <RoomCard
+            <ManagementRoomCard
               key={room.id}
               id={room.id}
               name={room.name}
@@ -59,14 +60,16 @@ export default async function DashboardOverviewPage() {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight">
-          Join or go to a room
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Explore available rooms to start chatting, or jump back into one
-          you&apos;ve already joined.
-        </p>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">
+            Manage your rooms here
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Create, join, or jump into rooms you already belong to.
+          </p>
+        </div>
+        <CreateRoomDialog />
       </div>
       {content}
     </div>
