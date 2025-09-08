@@ -1,5 +1,5 @@
 import "~/styles/globals.css";
-
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "~/components/ui/sonner";
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        {children}
+        <NuqsAdapter>{children}</NuqsAdapter>
         <Toaster richColors position="top-center" />
       </body>
     </html>

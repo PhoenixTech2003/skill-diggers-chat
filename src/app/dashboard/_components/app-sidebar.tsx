@@ -28,10 +28,15 @@ import { authClient } from "~/lib/auth-client";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { SidebarFooterUser } from "./sidebar-footer";
 import { UserRoomsSection } from "./user-rooms-section";
+import type { getAllRoomMemberShipByUserId } from "~/server/db/queries";
 
 const queryClient = new QueryClient();
 
-export function AppSidebar() {
+export function AppSidebar({
+  userRoomMembershipPromise,
+}: {
+  userRoomMembershipPromise: ReturnType<typeof getAllRoomMemberShipByUserId>;
+}) {
   const [roomsExpanded, setRoomsExpanded] = useState(true);
   const pathname = usePathname();
   const { data: session, isPending, error } = authClient.useSession();
@@ -102,10 +107,14 @@ export function AppSidebar() {
                   <SidebarMenu>
                     {isPending &&
                       Array.from({ length: 5 }).map((_, i) => (
-                        <SidebarMenuSkeleton key={i} />
+                        <SidebarMenuSkeleton suppressHydrationWarning key={i} />
                       ))}
 
-                    {!isPending && <UserRoomsSection />}
+                    {!isPending && (
+                      <UserRoomsSection
+                        userRoomMembershipPromise={userRoomMembershipPromise}
+                      />
+                    )}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </CollapsibleContent>

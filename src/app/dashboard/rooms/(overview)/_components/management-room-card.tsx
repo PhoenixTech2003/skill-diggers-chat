@@ -14,11 +14,14 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { RenameRoomDialog } from "./rename-room-dialog";
 import { DeleteRoomDialog } from "./delete-room-dialog";
+import { joinRoomAction } from "~/server/actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type ManagementRoomCardProps = {
   id: string;
   name: string;
-  createdAt: string | Date;
+  createdAt: Date;
   isMember: boolean;
 };
 
@@ -28,8 +31,18 @@ export function ManagementRoomCard({
   createdAt,
   isMember,
 }: ManagementRoomCardProps) {
-  const createdDate = new Date(createdAt);
-
+  const router = useRouter();
+  async function handleJoinRoom() {
+    toast.promise(joinRoomAction({ roomId: id }), {
+      loading: "Joining room...",
+      success: () => {
+        router.refresh();
+        router.push(`/dashboard/rooms/${id}`);
+        return "Joined room";
+      },
+      error: "Failed to join room",
+    });
+  }
   return (
     <Card className="bg-card overflow-hidden border">
       <div className="bg-muted flex items-center justify-center p-8">
@@ -41,7 +54,7 @@ export function ManagementRoomCard({
             {name}
           </h3>
           <p className="text-muted-foreground mt-1 text-xs">
-            Created {createdDate.toLocaleDateString()}
+            Created {createdAt.toLocaleDateString()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -50,7 +63,9 @@ export function ManagementRoomCard({
               <Link href={`/dashboard/rooms/${id}`}>Go to room</Link>
             </Button>
           ) : (
-            <Button variant="secondary">Join</Button>
+            <Button variant="secondary" onClick={handleJoinRoom}>
+              Join
+            </Button>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

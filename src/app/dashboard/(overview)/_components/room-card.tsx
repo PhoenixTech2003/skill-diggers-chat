@@ -4,24 +4,30 @@ import Link from "next/link";
 import { Code2 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { joinRoomAction } from "~/server/actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type RoomCardProps = {
   id: string;
   name: string;
-  createdAt: string | Date;
+  createdAt: Date;
   isMember: boolean;
-  onJoin?: (roomId: string) => void;
 };
 
-export function RoomCard({
-  id,
-  name,
-  createdAt,
-  isMember,
-  onJoin,
-}: RoomCardProps) {
-  const createdDate = new Date(createdAt);
-
+export function RoomCard({ id, name, createdAt, isMember }: RoomCardProps) {
+  const router = useRouter();
+  async function handleJoinRoom() {
+    toast.promise(joinRoomAction({ roomId: id }), {
+      loading: "Joining room...",
+      success: () => {
+        router.refresh();
+        router.push(`/dashboard/rooms/${id}`);
+        return "Joined room";
+      },
+      error: "Failed to join room",
+    });
+  }
   return (
     <Card className="bg-card overflow-hidden border">
       <div className="bg-muted flex items-center justify-center p-8">
@@ -33,7 +39,7 @@ export function RoomCard({
             {name}
           </h3>
           <p className="text-muted-foreground mt-1 text-xs">
-            Created {createdDate.toLocaleDateString()}
+            Created {createdAt.toLocaleDateString()}
           </p>
         </div>
         <div className="shrink-0">
@@ -42,7 +48,7 @@ export function RoomCard({
               <Link href={`/dashboard/rooms/${id}`}>Go to room</Link>
             </Button>
           ) : (
-            <Button onClick={() => onJoin?.(id)}>Join</Button>
+            <Button onClick={handleJoinRoom}>Join</Button>
           )}
         </div>
       </CardContent>

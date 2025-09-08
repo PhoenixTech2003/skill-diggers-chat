@@ -1,74 +1,34 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import { authClient } from "~/lib/auth-client";
-import { getAllRoomMemberShipByUserId } from "~/server/db/queries";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSkeleton,
-} from "~/components/ui/sidebar";
+import { type getAllRoomMemberShipByUserId } from "~/server/db/queries";
+import { usePathname } from "next/navigation";
+import { SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
 import { Hash } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { use } from "react";
 
-export function UserRoomsSection() {
-  const router = useRouter();
+export function UserRoomsSection({
+  userRoomMembershipPromise,
+}: {
+  userRoomMembershipPromise: ReturnType<typeof getAllRoomMemberShipByUserId>;
+}) {
   const pathname = usePathname();
-  const {
-    data: session,
-    isPending: sessionPending,
-    error: sessionError,
-  } = authClient.useSession();
-  if (!session) {
-    router.push("/auth/login");
-  }
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["user-rooms", session?.session?.userId],
-    queryFn: () =>
-      getAllRoomMemberShipByUserId({ userId: session!.session.userId }),
-    enabled: !!session?.session?.userId,
-  });
+  const { roomMemberShip, roomMemberShipError } = use(
+    userRoomMembershipPromise,
+  );
 
-  if (sessionError) {
-    return (
-      <li className="px-2">
-        <Alert variant="destructive">
-          <AlertTitle>Session error</AlertTitle>
-          <AlertDescription>
-            {sessionError instanceof Error
-              ? sessionError.message
-              : String(sessionError)}
-          </AlertDescription>
-        </Alert>
-      </li>
-    );
-  }
-
-  if (sessionPending || isLoading) {
-    return (
-      <>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <SidebarMenuSkeleton key={i} />
-        ))}
-      </>
-    );
-  }
-
-  if (error) {
+  if (roomMemberShipError) {
     return (
       <li className="px-2">
         <Alert variant="destructive">
           <AlertTitle>Could not load your rooms</AlertTitle>
-          <AlertDescription>
-            {error instanceof Error ? error.message : "Unknown error"}
-          </AlertDescription>
+          <AlertDescription>{roomMemberShipError}</AlertDescription>
         </Alert>
       </li>
     );
   }
 
-  const rooms = data?.roomMemberShip ?? [];
+  const rooms = roomMemberShip ?? [];
   if (rooms.length === 0) {
     return (
       <li className="px-2 py-1">
