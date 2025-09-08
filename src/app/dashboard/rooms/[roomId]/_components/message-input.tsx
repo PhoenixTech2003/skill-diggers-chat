@@ -2,10 +2,10 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { Send, Paperclip, Smile, Code } from "lucide-react";
+import { Send } from "lucide-react";
 
 interface MessageInputProps {
   roomId: string;
@@ -13,7 +13,21 @@ interface MessageInputProps {
 
 export function MessageInput({ roomId }: MessageInputProps) {
   const [message, setMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaSize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const maxHeight = 128; // matches Tailwind max-h-32
+    const newHeight = Math.min(el.scrollHeight, maxHeight);
+    el.style.height = `${newHeight}px`;
+    el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
+  };
+
+  useEffect(() => {
+    adjustTextareaSize();
+  }, [message]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,50 +51,21 @@ export function MessageInput({ roomId }: MessageInputProps) {
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Textarea
+              ref={textareaRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={`Message #${roomId === "1" ? "JavaScript" : roomId === "2" ? "Python" : "Room"}`}
-              className="bg-input border-border max-h-32 min-h-[44px] resize-none pr-12"
+              className="bg-input border-border max-h-32 min-h-[44px] resize-none overflow-x-hidden pr-12 break-words"
+              wrap="soft"
               rows={1}
             />
-            <div className="absolute top-2 right-2 flex gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                <Paperclip className="h-4 w-4" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                <Smile className="h-4 w-4" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                <Code className="h-4 w-4" />
-              </Button>
-            </div>
+            <div className="absolute top-2 right-2 flex gap-1"></div>
           </div>
           <Button type="submit" disabled={!message.trim()} className="h-11">
             <Send className="h-4 w-4" />
           </Button>
         </div>
-
-        {isTyping && (
-          <div className="text-muted-foreground text-xs">
-            Several people are typing...
-          </div>
-        )}
       </form>
     </div>
   );

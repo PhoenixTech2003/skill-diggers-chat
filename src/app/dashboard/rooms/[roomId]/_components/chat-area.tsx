@@ -72,7 +72,7 @@ const getRoleColor = (role: string) => {
   }
 };
 
-export function ChatArea({ roomId }: ChatAreaProps) {
+export function ChatArea({}: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
