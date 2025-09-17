@@ -60,7 +60,7 @@ export function RoomInterface({ roomId }: RoomInterfaceProps) {
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Chat Area in Scrollable container */}
         <ScrollArea className="flex-1">
-          <div className="p-4 pb-40">
+          <div className="p-4 pb-56">
             <ChatArea roomId={roomId} />
           </div>
         </ScrollArea>
