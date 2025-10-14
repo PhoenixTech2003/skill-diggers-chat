@@ -1,16 +1,20 @@
 import { getRooms } from "~/server/db/queries";
 import { RoomCard } from "./_components/room-card";
 import { isUserInRoom } from "~/lib/room-helpers";
-import { auth } from "~/lib/auth";
-import { headers } from "next/headers";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "../../../../convex/_generated/api";
+import { getToken } from "~/lib/auth-server";
 import { redirect } from "next/navigation";
 
 export default async function DashboardOverviewPage() {
+  const token = await getToken();
   const { roomData, roomDataError } = await getRooms({ query: "" });
-  const sessionData = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!sessionData) {
+  const { sessionData, sessionDataError } = await fetchQuery(
+    api.users.getLoggedUserSession,
+    {},
+    { token },
+  );
+  if (!sessionData?.session) {
     redirect("/auth/login");
   }
   let content: React.ReactNode;

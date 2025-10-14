@@ -9,17 +9,24 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
-import { auth } from "~/lib/auth";
-import { headers } from "next/headers";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "../../../../convex/_generated/api";
+import { getToken } from "~/lib/auth-server";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "./sign-out-button";
 
 export async function DashboardHeader() {
-  const sessionData = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const token = await getToken();
+  const { sessionData, sessionDataError } = await fetchQuery(
+    api.users.getLoggedUserSession,
+    {},
+    { token },
+  );
+  if (!sessionData?.session) {
+    redirect("/auth/login");
+  }
 
-  if (!sessionData) {
+  if (!sessionData?.session) {
     redirect("/auth/login");
   }
 
