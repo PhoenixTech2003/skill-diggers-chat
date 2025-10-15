@@ -22,7 +22,7 @@ import { toast } from "sonner";
 type ManagementRoomCardProps = {
   id: Id<"room">;
   name: string;
-  createdAt: string | Date;
+  createdAt: Date;
   isMember: boolean;
 };
 
@@ -54,7 +54,7 @@ export function ManagementRoomCard({
             {name}
           </h3>
           <p className="text-muted-foreground mt-1 text-xs">
-            Created {createdDate.toLocaleDateString()}
+            Created {createdAt.toLocaleDateString()}
           </p>
         </div>
         <div className="flex items-center gap-2">

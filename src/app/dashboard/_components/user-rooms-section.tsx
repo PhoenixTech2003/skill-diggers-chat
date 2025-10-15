@@ -11,9 +11,13 @@ import {
 import { Hash } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { use } from "react";
 
-export function UserRoomsSection() {
-  const router = useRouter();
+export function UserRoomsSection({
+  userRoomMembershipPromise,
+}: {
+  userRoomMembershipPromise: ReturnType<typeof getAllRoomMemberShipByUserId>;
+}) {
   const pathname = usePathname();
   const {
     data: session,
