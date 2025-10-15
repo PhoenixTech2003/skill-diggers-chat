@@ -138,11 +138,12 @@ export const joinRoom = mutation({
   handler: async (ctx, args) => {
     try {
       const userData = await authComponent.getAuthUser(ctx);
-      const roomMemberData = await ctx.db.insert("roomMember", {
+      await ctx.db.insert("roomMember", {
         roomId: args.roomId,
         userId: userData._id,
       });
-      return roomMemberData;
+      const roomDetails = await ctx.db.get(args.roomId);
+      return roomDetails;
     } catch (joinRoomError) {
       console.error(joinRoomError);
       throw joinRoomError;

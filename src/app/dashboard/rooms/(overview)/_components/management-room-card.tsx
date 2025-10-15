@@ -15,6 +15,9 @@ import {
 import { RenameRoomDialog } from "./rename-room-dialog";
 import { DeleteRoomDialog } from "./delete-room-dialog";
 import type { Id } from "convex/_generated/dataModel";
+import { useMutation } from "convex/react";
+import { api } from "../../../../../../convex/_generated/api";
+import { toast } from "sonner";
 
 type ManagementRoomCardProps = {
   id: Id<"room">;
@@ -30,7 +33,16 @@ export function ManagementRoomCard({
   isMember,
 }: ManagementRoomCardProps) {
   const createdDate = new Date(createdAt);
-
+  const joinRoom = useMutation(api.rooms.joinRoom);
+  async function handleJoinRoom() {
+    toast.promise(joinRoom({ roomId: id }), {
+      loading: "Joining room...",
+      success: (roomDetails) => {
+        return `Room ${roomDetails?.name} joined`;
+      },
+      error: "Failed to join room",
+    });
+  }
   return (
     <Card className="bg-card overflow-hidden border">
       <div className="bg-muted flex items-center justify-center p-8">
@@ -51,7 +63,9 @@ export function ManagementRoomCard({
               <Link href={`/dashboard/rooms/${id}`}>Go to room</Link>
             </Button>
           ) : (
-            <Button variant="secondary">Join</Button>
+            <Button variant="secondary" onClick={handleJoinRoom}>
+              Join
+            </Button>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
