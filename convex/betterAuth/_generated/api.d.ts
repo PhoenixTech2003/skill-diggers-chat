@@ -10,6 +10,7 @@
 
 import type * as adapter from "../adapter.js";
 import type * as auth from "../auth.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +29,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   adapter: typeof adapter;
   auth: typeof auth;
+  users: typeof users;
 }>;
 export type Mounts = {
   adapter: {
@@ -987,6 +989,9 @@ export type Mounts = {
       },
       any
     >;
+  };
+  users: {
+    getUser: FunctionReference<"query", "public", { userId: string }, any>;
   };
 };
 // For now fullApiWithMounts is only fullApi which provides

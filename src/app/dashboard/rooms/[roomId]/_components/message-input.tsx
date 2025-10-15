@@ -1,72 +1,82 @@
 "use client";
 
 import type React from "react";
-
-import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Send } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { api } from "../../../../../../convex/_generated/api";
+import { useMutation } from "convex/react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "~/components/ui/form";
+import type { Id } from "convex/_generated/dataModel";
+import { toast } from "sonner";
 
+const formSchema = z.object({
+  content: z.string().min(1),
+});
 interface MessageInputProps {
   roomId: string;
 }
 
 export function MessageInput({ roomId }: MessageInputProps) {
-  const [message, setMessage] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      content: "",
+    },
+    mode: "onChange",
+  });
 
-  const adjustTextareaSize = () => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    const maxHeight = 192; // matches Tailwind max-h-48
-    const newHeight = Math.min(el.scrollHeight, maxHeight);
-    el.style.height = `${newHeight}px`;
-    el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
-  };
+  const sendMessage = useMutation(api.messages.sendMessage);
 
-  useEffect(() => {
-    adjustTextareaSize();
-  }, [message]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      // Here you would send the message
-      console.log("Sending message:", message);
-      setMessage("");
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await sendMessage({
+        roomId: roomId as Id<"room">,
+        content: values.content,
+      });
+      form.reset();
+    } catch {
+      toast.error("Failed to send message please contact support");
     }
   };
 
   return (
     <div className="border-border bg-card/95 supports-[backdrop-filter]:bg-card/80 fixed inset-x-0 bottom-4 z-20 mx-auto w-[min(100%-1rem,420px)] rounded-xl border p-4 shadow-lg backdrop-blur sm:w-[480px] md:w-[560px] lg:w-[640px] xl:w-[720px]">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Textarea
-              ref={textareaRef}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={`Message #${roomId === "1" ? "JavaScript" : roomId === "2" ? "Python" : "Room"}`}
-              className="bg-input border-border max-h-48 min-h-[44px] w-full resize-none overflow-x-hidden pr-12 wrap-break-word"
-              wrap="soft"
-              rows={1}
-            />
-            <div className="absolute top-2 right-2 flex gap-1"></div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Let's get chatting" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={!form.formState.isValid}
+              className="h-11"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
           </div>
-          <Button type="submit" disabled={!message.trim()} className="h-11">
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </form>
+        </form>
+      </Form>
     </div>
   );
 }
