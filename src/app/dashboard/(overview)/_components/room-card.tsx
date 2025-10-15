@@ -42,7 +42,7 @@ export function RoomCard({ id, name, createdAt }: RoomCardProps) {
             {name}
           </h3>
           <p className="text-muted-foreground mt-1 text-xs">
-            Created {createdAt.toLocaleDateString()}
+            Created {createdDate.toLocaleDateString()}
           </p>
         </div>
         <div className="shrink-0">

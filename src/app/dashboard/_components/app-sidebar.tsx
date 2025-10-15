@@ -28,11 +28,7 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { SidebarFooterUser } from "./sidebar-footer";
 import { UserRoomsSection } from "./user-rooms-section";
 
-export function AppSidebar({
-  userRoomMembershipPromise,
-}: {
-  userRoomMembershipPromise: ReturnType<typeof getAllRoomMemberShipByUserId>;
-}) {
+export function AppSidebar() {
   const [roomsExpanded, setRoomsExpanded] = useState(true);
   const pathname = usePathname();
   const { data: session, isPending, error } = authClient.useSession();

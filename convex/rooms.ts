@@ -124,6 +124,16 @@ export const deleteRoom = mutation({
     try {
       const { roomId } = args;
       await ctx.db.delete(roomId);
+      const roomMemberships = await ctx.db.query("roomMember").collect();
+      const filteredRoomMemberships = roomMemberships.filter(
+        (q) => q.roomId === roomId,
+      );
+      await Promise.all(
+        filteredRoomMemberships.map(async (roomMembership) => {
+          await ctx.db.delete(roomMembership._id);
+        }),
+      );
+      return true;
     } catch (error) {
       console.error(error);
       throw error;

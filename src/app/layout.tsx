@@ -1,5 +1,4 @@
 import "~/styles/globals.css";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "~/components/ui/sonner";
