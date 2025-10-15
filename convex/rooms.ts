@@ -1,7 +1,7 @@
+/* eslint-disable drizzle/enforce-delete-with-where */
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
-import type { Id } from "./_generated/dataModel";
 
 export const getRooms = query({
   args: {},
@@ -44,14 +44,14 @@ export const createRoom = mutation({
 
 export const checkMembership = query({
   args: {
-    userId: v.string(),
     roomId: v.id("room"),
   },
   handler: async (ctx, args) => {
     try {
+      const userdata = await authComponent.getAuthUser(ctx);
       const roomMemberships = await ctx.db.query("roomMember").collect();
       const filteredRoomMemberships = roomMemberships.filter(
-        (q) => q.roomId === args.roomId && q.userId === args.userId,
+        (q) => q.roomId === args.roomId && q.userId === userdata._id,
       );
       const isMember = filteredRoomMemberships.length > 0 ? true : false;
       return isMember;
@@ -121,7 +121,31 @@ export const deleteRoom = mutation({
     roomId: v.id("room"),
   },
   handler: async (ctx, args) => {
-    const { roomId } = args;
-    await ctx.db.delete(roomId);
+    try {
+      const { roomId } = args;
+      await ctx.db.delete(roomId);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+});
+
+export const joinRoom = mutation({
+  args: {
+    roomId: v.id("room"),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const userData = await authComponent.getAuthUser(ctx);
+      const roomMemberData = await ctx.db.insert("roomMember", {
+        roomId: args.roomId,
+        userId: userData._id,
+      });
+      return roomMemberData;
+    } catch (joinRoomError) {
+      console.error(joinRoomError);
+      throw joinRoomError;
+    }
   },
 });

@@ -10,7 +10,6 @@ interface RoomListProps {
 
 export function RoomCard(props: RoomListProps) {
   const isMember = useQuery(api.rooms.checkMembership, {
-    userId: props.room.createdBy,
     roomId: props.room._id,
   });
 

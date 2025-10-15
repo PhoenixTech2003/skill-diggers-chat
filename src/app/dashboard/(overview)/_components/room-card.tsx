@@ -4,22 +4,21 @@ import Link from "next/link";
 import { Code2 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { type Id } from "convex/_generated/dataModel";
 
 type RoomCardProps = {
-  id: string;
+  id: Id<"room">;
   name: string;
   createdAt: string | Date;
-  isMember: boolean;
-  onJoin?: (roomId: string) => void;
+  onJoin?: (roomId: Id<"room">) => void;
 };
 
-export function RoomCard({
-  id,
-  name,
-  createdAt,
-  isMember,
-  onJoin,
-}: RoomCardProps) {
+export function RoomCard({ id, name, createdAt, onJoin }: RoomCardProps) {
+  const isMember = useQuery(api.rooms.checkMembership, {
+    roomId: id,
+  });
   const createdDate = new Date(createdAt);
 
   return (
