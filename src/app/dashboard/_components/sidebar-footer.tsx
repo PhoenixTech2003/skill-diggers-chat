@@ -16,23 +16,6 @@ export function SidebarFooterUser() {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  useEffect(() => {
-    function onConnect() {
-      setIsOnline(true);
-    }
-    function onDisconnect() {
-      setIsOnline(false);
-    }
-    if (socket.connected) {
-      onConnect();
-    }
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
-  });
 
   return (
     <div className="flex items-center gap-3 p-2">

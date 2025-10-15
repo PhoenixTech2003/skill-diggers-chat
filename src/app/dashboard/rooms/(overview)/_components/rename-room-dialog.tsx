@@ -26,19 +26,23 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { updateRoomNameAction } from "~/server/actions";
+import type { Id } from "convex/_generated/dataModel";
+import { useMutation } from "convex/react";
+import { api } from "../../../../../../convex/_generated/api";
 
 export function RenameRoomDialog({
   roomId,
   initialName,
   trigger,
 }: {
-  roomId: string;
+  roomId: Id<"room">;
   initialName: string;
   trigger: React.ReactNode;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  const updateRoomName = useMutation(api.rooms.updateRoomName);
 
   const form = useForm<CreateRoomFormType>({
     resolver: zodResolver(createRoomFormSchema),
@@ -47,7 +51,7 @@ export function RenameRoomDialog({
   });
 
   const onSubmit = async (values: CreateRoomFormType) => {
-    toast.promise(updateRoomNameAction({ roomId, name: values.name }), {
+    toast.promise(updateRoomName({ roomId, name: values.name }), {
       loading: "Updating room...",
       success: () => {
         setOpen(false);

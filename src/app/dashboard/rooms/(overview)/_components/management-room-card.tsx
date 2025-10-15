@@ -14,9 +14,10 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { RenameRoomDialog } from "./rename-room-dialog";
 import { DeleteRoomDialog } from "./delete-room-dialog";
+import type { Id } from "convex/_generated/dataModel";
 
 type ManagementRoomCardProps = {
-  id: string;
+  id: Id<"room">;
   name: string;
   createdAt: string | Date;
   isMember: boolean;

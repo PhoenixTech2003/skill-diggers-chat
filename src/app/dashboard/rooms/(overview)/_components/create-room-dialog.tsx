@@ -24,11 +24,13 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { toast } from "sonner";
-import { createRoomAction } from "~/server/actions";
 import { useRouter } from "next/navigation";
+import { api } from "../../../../../../convex/_generated/api";
+import { useMutation } from "convex/react";
 
 export function CreateRoomDialog() {
   const [open, setOpen] = useState(false);
+  const createRoom = useMutation(api.rooms.createRoom);
   const router = useRouter();
   const form = useForm<CreateRoomFormType>({
     resolver: zodResolver(createRoomFormSchema),
@@ -37,7 +39,7 @@ export function CreateRoomDialog() {
   });
 
   const onSubmit = async (values: CreateRoomFormType) => {
-    toast.promise(createRoomAction(values), {
+    toast.promise(createRoom(values), {
       loading: "Creating room...",
       success: () => {
         setOpen(false);
