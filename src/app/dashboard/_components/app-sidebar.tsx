@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Code2, MessageSquare, ChevronDown, ChevronRight } from "lucide-react";
 import {
   Sidebar,
@@ -29,8 +28,6 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { SidebarFooterUser } from "./sidebar-footer";
 import { UserRoomsSection } from "./user-rooms-section";
 
-const queryClient = new QueryClient();
-
 export function AppSidebar() {
   const [roomsExpanded, setRoomsExpanded] = useState(true);
   const pathname = usePathname();
@@ -42,82 +39,77 @@ export function AppSidebar() {
     : null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Sidebar>
-        <SidebarHeader>
-          <Link href="/dashboard" className="flex items-center gap-2 px-2 py-1">
-            <Code2 className="text-primary h-8 w-8" />
-            <span className="text-xl font-bold">Skill Diggers</span>
-          </Link>
-        </SidebarHeader>
+    <Sidebar>
+      <SidebarHeader>
+        <Link href="/dashboard" className="flex items-center gap-2 px-2 py-1">
+          <Code2 className="text-primary h-8 w-8" />
+          <span className="text-xl font-bold">Skill Diggers</span>
+        </Link>
+      </SidebarHeader>
 
-        <SidebarContent>
-          {sessionErrorMessage && (
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <ul>
-                  <li className="px-2">
-                    <Alert variant="destructive">
-                      <AlertTitle>Session error</AlertTitle>
-                      <AlertDescription>{sessionErrorMessage}</AlertDescription>
-                    </Alert>
-                  </li>
-                </ul>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          )}
-
+      <SidebarContent>
+        {sessionErrorMessage && (
           <SidebarGroup>
             <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === "/dashboard"}
-                  >
-                    <Link href="/dashboard">
-                      <MessageSquare className="h-4 w-4" />
-                      <span>Dashboard</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
+              <ul>
+                <li className="px-2">
+                  <Alert variant="destructive">
+                    <AlertTitle>Session error</AlertTitle>
+                    <AlertDescription>{sessionErrorMessage}</AlertDescription>
+                  </Alert>
+                </li>
+              </ul>
             </SidebarGroupContent>
           </SidebarGroup>
+        )}
 
-          <SidebarGroup>
-            <Collapsible open={roomsExpanded} onOpenChange={setRoomsExpanded}>
-              <SidebarGroupLabel asChild>
-                <CollapsibleTrigger className="flex w-full items-center justify-between">
-                  Available Rooms
-                  {roomsExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {isPending &&
-                      Array.from({ length: 5 }).map((_, i) => (
-                        <SidebarMenuSkeleton key={i} />
-                      ))}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/dashboard"}>
+                  <Link href="/dashboard">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-                    {!isPending && <UserRoomsSection />}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </Collapsible>
-          </SidebarGroup>
-          {session?.user?.role === "admin" && <AdminSidebarGroup />}
-        </SidebarContent>
+        <SidebarGroup>
+          <Collapsible open={roomsExpanded} onOpenChange={setRoomsExpanded}>
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center justify-between">
+                Available Rooms
+                {roomsExpanded ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {isPending &&
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <SidebarMenuSkeleton key={i} />
+                    ))}
 
-        <SidebarFooter>
-          <SidebarFooterUser />
-        </SidebarFooter>
-      </Sidebar>
-    </QueryClientProvider>
+                  {!isPending && <UserRoomsSection />}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+        {session?.user?.role === "admin" && <AdminSidebarGroup />}
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarFooterUser />
+      </SidebarFooter>
+    </Sidebar>
   );
 }

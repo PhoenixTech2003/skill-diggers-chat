@@ -1,7 +1,7 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
 import { authClient } from "~/lib/auth-client";
-import { getAllRoomMemberShipByUserId } from "~/server/db/queries";
+import { api } from "../../../../convex/_generated/api";
+import { useQuery } from "convex/react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   SidebarMenuButton,
@@ -13,8 +13,8 @@ import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 export function UserRoomsSection() {
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
   const {
     data: session,
     isPending: sessionPending,
@@ -23,12 +23,7 @@ export function UserRoomsSection() {
   if (!session) {
     router.push("/auth/login");
   }
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["user-rooms", session?.session?.userId],
-    queryFn: () =>
-      getAllRoomMemberShipByUserId({ userId: session!.session.userId }),
-    enabled: !!session?.session?.userId,
-  });
+  const roomMembershipsData = useQuery(api.rooms.getAllRoomMemberShipByUserId);
 
   if (sessionError) {
     return (
@@ -45,7 +40,7 @@ export function UserRoomsSection() {
     );
   }
 
-  if (sessionPending || isLoading) {
+  if (sessionPending || roomMembershipsData == undefined) {
     return (
       <>
         {Array.from({ length: 3 }).map((_, i) => (
@@ -55,20 +50,20 @@ export function UserRoomsSection() {
     );
   }
 
-  if (error) {
+  if (roomMembershipsData.userRoomsDataError) {
     return (
       <li className="px-2">
         <Alert variant="destructive">
           <AlertTitle>Could not load your rooms</AlertTitle>
           <AlertDescription>
-            {error instanceof Error ? error.message : "Unknown error"}
+            {roomMembershipsData.userRoomsDataError}
           </AlertDescription>
         </Alert>
       </li>
     );
   }
 
-  const rooms = data?.roomMemberShip ?? [];
+  const rooms = roomMembershipsData.userRoomsData ?? [];
   if (rooms.length === 0) {
     return (
       <li className="px-2 py-1">
@@ -80,14 +75,14 @@ export function UserRoomsSection() {
   return (
     <>
       {rooms.map((room) => (
-        <SidebarMenuItem key={room.roomId}>
+        <SidebarMenuItem key={room!._id}>
           <SidebarMenuButton
             asChild
-            isActive={pathname === `/dashboard/rooms/${room.roomId}`}
+            isActive={pathname === `/dashboard/rooms/${room!._id}`}
           >
-            <Link href={`/dashboard/rooms/${room.roomId}`}>
+            <Link href={`/dashboard/rooms/${room!._id}`}>
               <Hash className="h-3 w-3" />
-              <span className="flex-1">{room.roomName}</span>
+              <span className="flex-1">{room!.name}</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

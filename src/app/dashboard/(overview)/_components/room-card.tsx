@@ -4,23 +4,32 @@ import Link from "next/link";
 import { Code2 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { type Id } from "convex/_generated/dataModel";
+import { toast } from "sonner";
 
 type RoomCardProps = {
-  id: string;
+  id: Id<"room">;
   name: string;
   createdAt: string | Date;
-  isMember: boolean;
-  onJoin?: (roomId: string) => void;
 };
 
-export function RoomCard({
-  id,
-  name,
-  createdAt,
-  isMember,
-  onJoin,
-}: RoomCardProps) {
+export function RoomCard({ id, name, createdAt }: RoomCardProps) {
+  const isMember = useQuery(api.rooms.checkMembership, {
+    roomId: id,
+  });
+  const joinRoom = useMutation(api.rooms.joinRoom);
   const createdDate = new Date(createdAt);
+  async function handleJoinRoom() {
+    toast.promise(joinRoom({ roomId: id }), {
+      loading: "Joining room...",
+      success: (roomDetails) => {
+        return `Room ${roomDetails?.name} joined`;
+      },
+      error: "Failed to join room",
+    });
+  }
 
   return (
     <Card className="bg-card overflow-hidden border">
@@ -42,7 +51,7 @@ export function RoomCard({
               <Link href={`/dashboard/rooms/${id}`}>Go to room</Link>
             </Button>
           ) : (
-            <Button onClick={() => onJoin?.(id)}>Join</Button>
+            <Button onClick={handleJoinRoom}>Join</Button>
           )}
         </div>
       </CardContent>

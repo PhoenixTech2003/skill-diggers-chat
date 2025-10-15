@@ -13,20 +13,23 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import { deleteRoomAction } from "~/server/actions";
+import { api } from "../../../../../../convex/_generated/api";
+import { useMutation } from "convex/react";
+import type { Id } from "convex/_generated/dataModel";
 
 export function DeleteRoomDialog({
   roomId,
   trigger,
 }: {
-  roomId: string;
+  roomId: Id<"room">;
   trigger: React.ReactNode;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const deleteRoom = useMutation(api.rooms.deleteRoom);
 
   const onDelete = async () => {
-    toast.promise(deleteRoomAction({ roomId }), {
+    toast.promise(deleteRoom({ roomId }), {
       loading: "Deleting room...",
       success: () => {
         setOpen(false);
