@@ -11,6 +11,15 @@ export const sendMessage = mutation({
   handler: async (ctx, args) => {
     try {
       const userData = await authComponent.getAuthUser(ctx);
+      // Unset previous last message in this room (if any)
+      const currentLast = await ctx.db
+        .query("message")
+        .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+        .filter((q) => q.eq(q.field("isLastMessage"), true))
+        .first();
+      if (currentLast) {
+        await ctx.db.patch(currentLast._id, { isLastMessage: false });
+      }
       await ctx.db.insert("message", {
         roomId: args.roomId,
         userId: userData._id,
@@ -30,10 +39,10 @@ export const getRoomMessages = query({
   },
   handler: async (ctx, args) => {
     try {
-      const messages = await ctx.db.query("message").collect();
-      const filteredMessagesForTheRoom = messages.filter(
-        (q) => q.roomId === args.roomId,
-      );
+      const filteredMessagesForTheRoom = await ctx.db
+        .query("message")
+        .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+        .collect();
       const formattedMessages = await Promise.all(
         filteredMessagesForTheRoom.map(async (message) => {
           type UserDetail = {

@@ -9,11 +9,14 @@ export default defineSchema({
   roomMember: defineTable({
     roomId: v.id("room"),
     userId: v.string(),
-  }),
+  })
+    .index("by_room_user", ["roomId", "userId"])
+    .index("by_user", ["userId"])
+    .index("by_room", ["roomId"]),
   message: defineTable({
     roomId: v.id("room"),
     userId: v.string(),
     content: v.string(),
     isLastMessage: v.boolean(),
-  }),
+  }).index("by_room", ["roomId"]),
 });

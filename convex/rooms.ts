@@ -1,6 +1,7 @@
 /* eslint-disable drizzle/enforce-delete-with-where */
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { authComponent } from "./auth";
 
 export const getRooms = query({
@@ -22,7 +23,6 @@ export const createRoom = mutation({
   },
   handler: async (ctx, args) => {
     try {
-      console.log("Creating room", args.name);
       const userdata = await authComponent.getAuthUser(ctx);
 
       if (userdata.role != "admin") {
@@ -49,12 +49,13 @@ export const checkMembership = query({
   handler: async (ctx, args) => {
     try {
       const userdata = await authComponent.getAuthUser(ctx);
-      const roomMemberships = await ctx.db.query("roomMember").collect();
-      const filteredRoomMemberships = roomMemberships.filter(
-        (q) => q.roomId === args.roomId && q.userId === userdata._id,
-      );
-      const isMember = filteredRoomMemberships.length > 0 ? true : false;
-      return isMember;
+      const membership = await ctx.db
+        .query("roomMember")
+        .withIndex("by_room_user", (q) =>
+          q.eq("roomId", args.roomId).eq("userId", userdata._id),
+        )
+        .first();
+      return membership !== null;
     } catch (checkMembershipError) {
       console.error(
         checkMembershipError instanceof Error
@@ -70,17 +71,15 @@ export const getAllRoomMemberShipByUserId = query({
   handler: async (ctx) => {
     try {
       const userdata = await authComponent.getAuthUser(ctx);
-      const roomMemberships = await ctx.db.query("roomMember").collect();
-      const filteredRoomMemberships = roomMemberships.filter(
-        (q) => q.userId === userdata._id,
-      );
+      const filteredRoomMemberships = await ctx.db
+        .query("roomMember")
+        .withIndex("by_user", (q) => q.eq("userId", userdata._id))
+        .collect();
+
       const userRooms = await Promise.all(
-        filteredRoomMemberships.map(async (room) => {
-          const roomDetails = await ctx.db.query("room").collect();
-          const filteredRoomDetails = roomDetails.filter(
-            (q) => q._id === room.roomId,
-          );
-          return filteredRoomDetails[0];
+        filteredRoomMemberships.map(async (membership) => {
+          const roomDetails = await ctx.db.get(membership.roomId);
+          return roomDetails!;
         }),
       );
       return { userRoomsData: userRooms, userRoomsDataError: null };
@@ -101,6 +100,10 @@ export const updateRoomName = mutation({
   },
   handler: async (ctx, args) => {
     try {
+      const userData = await authComponent.getAuthUser(ctx);
+      if (userData.role !== "admin") {
+        throw new Error("You are not authorized to rename this room");
+      }
       const { roomId } = args;
       const room = await ctx.db.get(roomId);
       if (!room) {
@@ -123,14 +126,28 @@ export const deleteRoom = mutation({
   handler: async (ctx, args) => {
     try {
       const { roomId } = args;
+      const userData = await authComponent.getAuthUser(ctx);
+      if (userData.role !== "admin") {
+        throw new Error("You are not authorized to delete this room");
+      }
       await ctx.db.delete(roomId);
-      const roomMemberships = await ctx.db.query("roomMember").collect();
-      const filteredRoomMemberships = roomMemberships.filter(
-        (q) => q.roomId === roomId,
-      );
+      const roomMemberships = await ctx.db
+        .query("roomMember")
+        .withIndex("by_room", (q) => q.eq("roomId", roomId))
+        .collect();
       await Promise.all(
-        filteredRoomMemberships.map(async (roomMembership) => {
+        roomMemberships.map(async (roomMembership) => {
           await ctx.db.delete(roomMembership._id);
+        }),
+      );
+
+      const roomMessages = await ctx.db
+        .query("message")
+        .withIndex("by_room", (q) => q.eq("roomId", roomId))
+        .collect();
+      await Promise.all(
+        roomMessages.map(async (message) => {
+          await ctx.db.delete(message._id);
         }),
       );
       return true;
@@ -167,12 +184,11 @@ export const getRoomDetails = query({
   },
   handler: async (ctx, args) => {
     try {
-      console.log("Getting room details", args.roomId);
       const roomDetails = await ctx.db.get(args.roomId);
-      const roomMemberships = await ctx.db.query("roomMember").collect();
-      const filteredRoomMemberships = roomMemberships.filter(
-        (q) => q.roomId === args.roomId,
-      );
+      const filteredRoomMemberships = await ctx.db
+        .query("roomMember")
+        .withIndex("by_room", (q) => q.eq("roomId", args.roomId))
+        .collect();
 
       return {
         roomData: {
@@ -195,18 +211,30 @@ export const leaveRoom = mutation({
   handler: async (ctx, args) => {
     try {
       const userData = await authComponent.getAuthUser(ctx);
-      const rooms = await ctx.db.query("roomMember").collect();
-      const userMembership = rooms.filter(
-        (q) => q.roomId === args.roomId && q.userId === userData._id,
-      );
-      if (!userMembership[0] || userMembership.length === 0) {
+      const membership = await ctx.db
+        .query("roomMember")
+        .withIndex("by_room_user", (q) =>
+          q.eq("roomId", args.roomId).eq("userId", userData._id),
+        )
+        .first();
+      if (!membership) {
         throw new Error("You are not a member of this room");
       }
-      await ctx.db.delete(userMembership[0]._id);
+      await ctx.db.delete(membership._id);
       return true;
     } catch (error) {
       console.error(error);
       throw error;
     }
+  },
+});
+
+export const roomExists = query({
+  args: {
+    roomId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const room = await ctx.db.get(args.roomId as Id<"room">);
+    return room !== null;
   },
 });
