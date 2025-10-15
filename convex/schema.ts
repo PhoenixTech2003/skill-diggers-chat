@@ -10,4 +10,10 @@ export default defineSchema({
     roomId: v.id("room"),
     userId: v.string(),
   }),
+  message: defineTable({
+    roomId: v.id("room"),
+    userId: v.string(),
+    content: v.string(),
+    isLastMessage: v.boolean(),
+  }),
 });

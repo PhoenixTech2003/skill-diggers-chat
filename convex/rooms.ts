@@ -160,3 +160,53 @@ export const joinRoom = mutation({
     }
   },
 });
+
+export const getRoomDetails = query({
+  args: {
+    roomId: v.id("room"),
+  },
+  handler: async (ctx, args) => {
+    try {
+      console.log("Getting room details", args.roomId);
+      const roomDetails = await ctx.db.get(args.roomId);
+      const roomMemberships = await ctx.db.query("roomMember").collect();
+      const filteredRoomMemberships = roomMemberships.filter(
+        (q) => q.roomId === args.roomId,
+      );
+
+      return {
+        roomData: {
+          details: roomDetails,
+          members: filteredRoomMemberships.length,
+        },
+        roomDataError: null,
+      };
+    } catch (error) {
+      console.error(error);
+      return { roomData: null, roomDataError: "Failed to get room details" };
+    }
+  },
+});
+
+export const leaveRoom = mutation({
+  args: {
+    roomId: v.id("room"),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const userData = await authComponent.getAuthUser(ctx);
+      const rooms = await ctx.db.query("roomMember").collect();
+      const userMembership = rooms.filter(
+        (q) => q.roomId === args.roomId && q.userId === userData._id,
+      );
+      if (!userMembership[0] || userMembership.length === 0) {
+        throw new Error("You are not a member of this room");
+      }
+      await ctx.db.delete(userMembership[0]._id);
+      return true;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+});
