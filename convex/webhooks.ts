@@ -1,6 +1,7 @@
 import { components, api } from "./_generated/api";
 import { httpAction } from "./_generated/server";
 import { Webhooks } from "@octokit/webhooks";
+import { Octokit } from "@octokit/rest";
 
 export const githubWebhook = httpAction(async (ctx, request) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
@@ -29,17 +30,43 @@ export const githubWebhook = httpAction(async (ctx, request) => {
       const issueNumber = event.payload.issue.number;
       const eventBody = event.payload.issue.body;
       const eventTitle = event.payload.issue.title;
-      const openedByEmail = event.payload.issue.user?.email;
-      console.log("[webhooks] openedByEmail", openedByEmail);
+
+      // Try to use email from payload first (often null)
+      let openedByEmail: string | null =
+        event.payload.issue.user?.email ?? null;
+      const openedByLogin =
+        event.payload.issue.user?.login ?? event.payload.sender.login;
 
       if (!openedByEmail) {
-        console.error("[webhooks] Missing email in webhook payload", {
+        try {
+          const octokit = new Octokit();
+          const { data } = await octokit.rest.users.getByUsername({
+            username: openedByLogin,
+          });
+          openedByEmail = data.email ?? null;
+          console.log("[webhooks] Octokit fetched email", {
+            openedByLogin,
+            openedByEmail,
+          });
+        } catch (e) {
+          console.error("[webhooks] Octokit users.getByUsername failed", {
+            openedByLogin,
+            error: e,
+          });
+          errorStatus = 502;
+          errorMessage = "Failed to fetch user details from GitHub";
+          return;
+        }
+      }
+
+      if (!openedByEmail) {
+        console.error("[webhooks] Email not available after Octokit lookup", {
           issueNumber,
           repo: event.payload.repository.full_name,
-          sender: event.payload.sender.login,
+          sender: openedByLogin,
         });
-        errorStatus = 400;
-        errorMessage = "Missing email in webhook payload";
+        errorStatus = 404;
+        errorMessage = "User email not available";
         return;
       }
 
