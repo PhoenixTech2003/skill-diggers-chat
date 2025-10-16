@@ -29,9 +29,8 @@ export const githubWebhook = httpAction(async (ctx, request) => {
       const issueNumber = event.payload.issue.number;
       const eventBody = event.payload.issue.body;
       const eventTitle = event.payload.issue.title;
-      const openedByEmail =
-        (event.payload.issue as any).user?.email ??
-        (event.payload.sender as any).email;
+      const openedByEmail = event.payload.issue.user?.email;
+      console.log("[webhooks] openedByEmail", openedByEmail);
 
       if (!openedByEmail) {
         console.error("[webhooks] Missing email in webhook payload", {
