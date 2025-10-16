@@ -17,37 +17,55 @@ export const githubWebhook = httpAction(async (ctx, request) => {
 
   const webhooks = new Webhooks({ secret });
 
-  //web hook implemenation that handles the issues.opened event
+  let handled = false;
+  let errorStatus: number | null = null;
+  let errorMessage: string | null = null;
+
+  // webhook implementation that handles the issues.opened event
   webhooks.on("issues.opened", async (event) => {
-    const issueUrl = event.payload.issue.html_url ?? event.payload.issue.url;
-    const issueNumber = event.payload.issue.number;
-    const eventBody = event.payload.issue.body;
-    const eventTitle = event.payload.issue.title;
-    const openedByEmail =
-      event.payload.issue.user?.email ?? event.payload.sender.email;
-    const openedBy =
-      event.payload.issue.user?.login ?? event.payload.sender.login;
-    if (!openedByEmail) {
-      return new Response("Missing email", { status: 400 });
+    try {
+      const issueUrl = event.payload.issue.html_url ?? event.payload.issue.url;
+      const issueNumber = event.payload.issue.number;
+      const eventBody = event.payload.issue.body;
+      const eventTitle = event.payload.issue.title;
+      const openedByEmail =
+        (event.payload.issue as any).user?.email ??
+        (event.payload.sender as any).email;
+
+      if (!openedByEmail) {
+        errorStatus = 400;
+        errorMessage = "Missing email in webhook payload";
+        return;
+      }
+
+      const userdata = await ctx.runQuery(
+        components.betterAuth.users.getUserByEmail,
+        { email: openedByEmail },
+      );
+      if (userdata.userDataError) {
+        errorStatus = 500;
+        errorMessage = userdata.userDataError;
+        return;
+      }
+      if (!userdata.userData) {
+        errorStatus = 404;
+        errorMessage = "User not found";
+        return;
+      }
+
+      await ctx.runMutation(api.issues.createIssue, {
+        issueUrl,
+        points: 0,
+        issueNumber,
+        openedBy: userdata.userData._id,
+        body: eventBody ?? "",
+        title: eventTitle,
+      });
+      handled = true;
+    } catch (e) {
+      errorStatus = 500;
+      errorMessage = "Handler error";
     }
-    const userdata = await ctx.runQuery(
-      components.betterAuth.users.getUserByEmail,
-      { email: openedByEmail },
-    );
-    if (userdata.userDataError) {
-      return new Response(userdata.userDataError, { status: 500 });
-    }
-    if (!userdata.userData) {
-      return new Response("User not found", { status: 404 });
-    }
-    await ctx.runMutation(api.issues.createIssue, {
-      issueUrl,
-      points: 0,
-      issueNumber,
-      openedBy: userdata.userData._id,
-      body: eventBody ?? "",
-      title: eventTitle,
-    });
   });
 
   try {
@@ -61,5 +79,14 @@ export const githubWebhook = httpAction(async (ctx, request) => {
     return new Response("Invalid signature or payload", { status: 400 });
   }
 
-  return new Response("Webhook received", { status: 200 });
+  if (errorStatus !== null) {
+    return new Response(errorMessage ?? "Webhook error", {
+      status: errorStatus,
+    });
+  }
+  if (handled) {
+    return new Response(null, { status: 200 });
+  }
+
+  return new Response("Event ignored", { status: 200 });
 });
