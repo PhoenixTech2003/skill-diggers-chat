@@ -19,4 +19,12 @@ export default defineSchema({
     content: v.string(),
     isLastMessage: v.boolean(),
   }).index("by_room", ["roomId"]),
+  githubIssue: defineTable({
+    issueUrl: v.string(),
+    points: v.number(),
+    issueNumber: v.number(),
+    openedBy: v.string(),
+    body: v.string(),
+    title: v.string(),
+  }),
 });
