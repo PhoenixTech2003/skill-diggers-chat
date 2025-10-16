@@ -50,7 +50,7 @@ export const githubWebhook = httpAction(async (ctx, request) => {
   } catch (err) {
     return new Response("Invalid signature or payload", { status: 400 });
   }
-  console.log(extracted);
+
   if (extracted) {
     return new Response(null, { status: 200 });
   }
