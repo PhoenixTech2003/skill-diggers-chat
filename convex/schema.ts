@@ -22,6 +22,9 @@ export default defineSchema({
   githubIssue: defineTable({
     issueUrl: v.string(),
     points: v.number(),
+    status: v.union(v.literal("open"), v.literal("closed")),
+    isApproved: v.boolean(),
+    approvedBy: v.optional(v.string()),
     issueNumber: v.number(),
     openedBy: v.string(),
     body: v.string(),

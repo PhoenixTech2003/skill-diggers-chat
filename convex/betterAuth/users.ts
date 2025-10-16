@@ -15,3 +15,21 @@ export const getUser = query({
     }
   },
 });
+
+export const getUserByEmail = query({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const userData = await ctx.db
+        .query("user")
+        .withIndex("email_name", (q) => q.eq("email", args.email))
+        .first();
+      return { userData: userData, userDataError: null };
+    } catch (error) {
+      console.error(error);
+      return { userData: null, userDataError: "Failed to get user data" };
+    }
+  },
+});

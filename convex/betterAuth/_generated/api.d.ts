@@ -992,6 +992,12 @@ export type Mounts = {
   };
   users: {
     getUser: FunctionReference<"query", "public", { userId: string }, any>;
+    getUserByEmail: FunctionReference<
+      "query",
+      "public",
+      { email: string },
+      any
+    >;
   };
 };
 // For now fullApiWithMounts is only fullApi which provides

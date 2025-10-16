@@ -1,3 +1,4 @@
+import { components, api } from "./_generated/api";
 import { httpAction } from "./_generated/server";
 import { Webhooks } from "@octokit/webhooks";
 
@@ -16,28 +17,37 @@ export const githubWebhook = httpAction(async (ctx, request) => {
 
   const webhooks = new Webhooks({ secret });
 
-  let extracted: {
-    issueUrl: string;
-    issueNumber: number;
-    openedBy: string;
-    body: string | null;
-    title: string;
-  } | null = null;
-
+  //web hook implemenation that handles the issues.opened event
   webhooks.on("issues.opened", async (event) => {
     const issueUrl = event.payload.issue.html_url ?? event.payload.issue.url;
     const issueNumber = event.payload.issue.number;
     const eventBody = event.payload.issue.body;
     const eventTitle = event.payload.issue.title;
+    const openedByEmail =
+      event.payload.issue.user?.email ?? event.payload.sender.email;
     const openedBy =
       event.payload.issue.user?.login ?? event.payload.sender.login;
-    extracted = {
+    if (!openedByEmail) {
+      return new Response("Missing email", { status: 400 });
+    }
+    const userdata = await ctx.runQuery(
+      components.betterAuth.users.getUserByEmail,
+      { email: openedByEmail },
+    );
+    if (userdata.userDataError) {
+      return new Response(userdata.userDataError, { status: 500 });
+    }
+    if (!userdata.userData) {
+      return new Response("User not found", { status: 404 });
+    }
+    await ctx.runMutation(api.issues.createIssue, {
       issueUrl,
+      points: 0,
       issueNumber,
-      openedBy,
-      body: eventBody,
+      openedBy: userdata.userData._id,
+      body: eventBody ?? "",
       title: eventTitle,
-    };
+    });
   });
 
   try {
@@ -51,9 +61,5 @@ export const githubWebhook = httpAction(async (ctx, request) => {
     return new Response("Invalid signature or payload", { status: 400 });
   }
 
-  if (extracted) {
-    return new Response(null, { status: 200 });
-  }
-
-  return new Response("OK");
+  return new Response("Webhook received", { status: 200 });
 });
