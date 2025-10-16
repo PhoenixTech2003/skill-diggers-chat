@@ -20,8 +20,8 @@ export const githubWebhook = httpAction(async (ctx, request) => {
     issueUrl: string;
     issueNumber: number;
     openedBy: string;
-    eventBody: string | null;
-    eventTitle: string;
+    body: string | null;
+    title: string;
   } | null = null;
 
   webhooks.on("issues.opened", async (event) => {
@@ -31,7 +31,13 @@ export const githubWebhook = httpAction(async (ctx, request) => {
     const eventTitle = event.payload.issue.title;
     const openedBy =
       event.payload.issue.user?.login ?? event.payload.sender.login;
-    extracted = { issueUrl, issueNumber, openedBy, eventBody, eventTitle };
+    extracted = {
+      issueUrl,
+      issueNumber,
+      openedBy,
+      body: eventBody,
+      title: eventTitle,
+    };
   });
 
   try {
