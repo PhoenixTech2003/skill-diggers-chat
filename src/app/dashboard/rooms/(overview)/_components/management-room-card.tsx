@@ -18,12 +18,13 @@ import type { Id } from "convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { toast } from "sonner";
+import { Skeleton } from "~/components/ui/skeleton";
 
 type ManagementRoomCardProps = {
   id: Id<"room">;
   name: string;
   createdAt: Date;
-  isMember: boolean;
+  isMember: boolean | undefined;
 };
 
 export function ManagementRoomCard({
@@ -58,7 +59,9 @@ export function ManagementRoomCard({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {isMember ? (
+          {isMember === undefined ? (
+            <Skeleton className="h-9 w-24" />
+          ) : isMember ? (
             <Button asChild>
               <Link href={`/dashboard/rooms/${id}`}>Go to room</Link>
             </Button>
