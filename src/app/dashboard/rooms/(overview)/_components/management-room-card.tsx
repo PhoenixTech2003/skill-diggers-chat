@@ -15,7 +15,7 @@ import {
 import { RenameRoomDialog } from "./rename-room-dialog";
 import { DeleteRoomDialog } from "./delete-room-dialog";
 import type { Id } from "convex/_generated/dataModel";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -24,15 +24,16 @@ type ManagementRoomCardProps = {
   id: Id<"room">;
   name: string;
   createdAt: Date;
-  isMember: boolean | undefined;
 };
 
 export function ManagementRoomCard({
   id,
   name,
   createdAt,
-  isMember,
 }: ManagementRoomCardProps) {
+  const isMember = useQuery(api.rooms.checkMembership, {
+    roomId: id,
+  });
   const createdDate = new Date(createdAt);
   const joinRoom = useMutation(api.rooms.joinRoom);
   async function handleJoinRoom() {
