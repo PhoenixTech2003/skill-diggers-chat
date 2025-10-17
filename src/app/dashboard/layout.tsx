@@ -6,6 +6,7 @@ import { getToken } from "~/lib/auth-server";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "../../../convex/_generated/api";
 import { redirect } from "next/navigation";
+import { theBoardFlag } from "~/flags";
 
 export default async function DashboardLayout({
   children,
@@ -25,9 +26,11 @@ export default async function DashboardLayout({
     redirect("/auth/login");
   }
 
+  const theBoard = theBoardFlag();
+
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar theBoardFlage={theBoard} />
       <SidebarInset className="flex-1">
         <DashboardHeader />
         <main className="flex-1">{children}</main>
