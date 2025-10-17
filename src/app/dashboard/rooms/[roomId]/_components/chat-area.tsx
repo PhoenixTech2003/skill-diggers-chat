@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { formatDistanceToNow } from "date-fns";
+import { RelativeTime } from "~/components/relative-time";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import type { Id } from "../../../../../../convex/_generated/dataModel";
@@ -73,9 +73,10 @@ export function ChatArea({ roomId }: ChatAreaProps) {
                 </Badge>
               )}
               <span className="text-muted-foreground text-xs">
-                {formatDistanceToNow(new Date(message._creationTime), {
-                  addSuffix: true,
-                })}
+                <RelativeTime
+                  date={new Date(message._creationTime)}
+                  addSuffix
+                />
               </span>
             </div>
 
