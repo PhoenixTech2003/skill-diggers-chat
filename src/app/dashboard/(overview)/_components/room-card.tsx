@@ -8,6 +8,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { type Id } from "convex/_generated/dataModel";
 import { toast } from "sonner";
+import { Skeleton } from "~/components/ui/skeleton";
 
 type RoomCardProps = {
   id: Id<"room">;
@@ -46,7 +47,9 @@ export function RoomCard({ id, name, createdAt }: RoomCardProps) {
           </p>
         </div>
         <div className="shrink-0">
-          {isMember ? (
+          {isMember === undefined ? (
+            <Skeleton className="h-9 w-24" />
+          ) : isMember ? (
             <Button asChild>
               <Link href={`/dashboard/rooms/${id}`}>Go to room</Link>
             </Button>
