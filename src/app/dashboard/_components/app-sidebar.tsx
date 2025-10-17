@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Code2, MessageSquare, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Code2,
+  MessageSquare,
+  ChevronDown,
+  ChevronRight,
+  Trophy,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -28,8 +34,14 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { SidebarFooterUser } from "./sidebar-footer";
 import { UserRoomsSection } from "./user-rooms-section";
 
-export function AppSidebar() {
+export function AppSidebar({
+  theBoardFlage,
+}: {
+  theBoardFlage: Promise<boolean>;
+}) {
+  const theBoard = use(theBoardFlage);
   const [roomsExpanded, setRoomsExpanded] = useState(true);
+  const [competitionsExpanded, setCompetitionsExpanded] = useState(true);
   const pathname = usePathname();
   const { data: session, isPending, error } = authClient.useSession();
   const sessionErrorMessage = error
@@ -104,6 +116,42 @@ export function AppSidebar() {
             </CollapsibleContent>
           </Collapsible>
         </SidebarGroup>
+        {theBoard && (
+          <SidebarGroup>
+            <Collapsible
+              open={competitionsExpanded}
+              onOpenChange={setCompetitionsExpanded}
+            >
+              <SidebarGroupLabel asChild>
+                <CollapsibleTrigger className="flex w-full items-center justify-between">
+                  Competions
+                  {competitionsExpanded ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/dashboard/board"}
+                      >
+                        <Link href="/dashboard/board">
+                          <Trophy className="h-4 w-4" />
+                          <span>The Board</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </SidebarGroup>
+        )}
         {session?.user?.role === "admin" && <AdminSidebarGroup />}
       </SidebarContent>
 
