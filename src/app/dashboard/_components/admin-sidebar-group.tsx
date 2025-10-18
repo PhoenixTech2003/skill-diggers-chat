@@ -5,7 +5,7 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 
-import { ChevronDown, ChevronRight, MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronRight, MessageSquare, Trophy } from "lucide-react";
 import Link from "next/link";
 import {
   SidebarMenu,
@@ -21,6 +21,11 @@ const adminItems = [
     href: "/dashboard/rooms/",
     label: "Rooms",
     icon: MessageSquare,
+  },
+  {
+    href: "/dashboard/board/admin",
+    label: "The Board",
+    icon: Trophy,
   },
 ];
 

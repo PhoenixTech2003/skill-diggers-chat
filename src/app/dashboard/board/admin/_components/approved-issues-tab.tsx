@@ -2,40 +2,31 @@
 
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Skeleton } from "~/components/ui/skeleton";
-import { GitBranch, Users, Clock } from "lucide-react";
+import { Clock, User, ExternalLink, CheckCircle } from "lucide-react";
 import type { Preloaded } from "convex/react";
 import { usePreloadedQuery } from "convex/react";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "../../../../../../convex/_generated/api";
 
-const getDifficultyColor = (points: number) => {
-  if (points <= 10) {
-    return "bg-green-500/10 text-green-500 border-green-500/20";
-  } else if (points <= 25) {
-    return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-  } else {
-    return "bg-red-500/10 text-red-500 border-red-500/20";
-  }
-};
+interface ApprovedIssuesTabProps {
+  preloadedIssues: Preloaded<typeof api.issues.getApprovedIssues>;
+}
 
-export function IssuesTab({
-  preloadedIssues,
-}: {
-  preloadedIssues: Preloaded<typeof api.issues.getOpenAndApprovedIssues>;
-}) {
+export function ApprovedIssuesTab({ preloadedIssues }: ApprovedIssuesTabProps) {
   const { issuesData, issuesDataError } = usePreloadedQuery(preloadedIssues);
 
   if (issuesDataError) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Available Bounties</CardTitle>
+          <CardTitle>Approved Issues</CardTitle>
           <CardDescription>
             Error loading issues: {issuesDataError}
           </CardDescription>
@@ -49,10 +40,10 @@ export function IssuesTab({
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Available Bounties</CardTitle>
+            <CardTitle>Approved Issues</CardTitle>
             <CardDescription>Loading issues...</CardDescription>
           </CardHeader>
-          <div className="space-y-4 p-6">
+          <CardContent>
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="space-y-2">
                 <Skeleton className="h-4 w-3/4" />
@@ -60,7 +51,7 @@ export function IssuesTab({
                 <Skeleton className="h-8 w-24" />
               </div>
             ))}
-          </div>
+          </CardContent>
         </Card>
       </div>
     );
@@ -70,9 +61,9 @@ export function IssuesTab({
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Available Bounties</CardTitle>
+          <CardTitle>Approved Issues</CardTitle>
           <CardDescription>
-            Accept a bounty and start earning points by solving issues
+            Issues that have been approved and are available on The Board
           </CardDescription>
         </CardHeader>
       </Card>
@@ -82,10 +73,10 @@ export function IssuesTab({
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <CardTitle className="text-muted-foreground mb-2">
-                No Issues Available
+                No Approved Issues
               </CardTitle>
               <CardDescription>
-                No approved issues available at the moment.
+                No issues have been approved yet.
               </CardDescription>
             </div>
           </div>
@@ -102,24 +93,23 @@ export function IssuesTab({
                       <CardTitle className="text-lg">{issue.title}</CardTitle>
                       <Badge
                         variant="outline"
-                        className={getDifficultyColor(issue.points)}
+                        className="border-green-500/20 bg-green-500/10 text-green-500"
                       >
-                        {issue.points} points
+                        <CheckCircle className="mr-1 h-3 w-3" />
+                        Approved
                       </Badge>
                     </div>
-                    <CardDescription>{issue.body}</CardDescription>
+                    <CardDescription className="line-clamp-2">
+                      {issue.body}
+                    </CardDescription>
                     <div className="text-muted-foreground flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        Issue #{issue.issueNumber}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
+                        <User className="h-3 w-3" />
                         {issue.openedByName}
                       </div>
                       <div className="flex items-center gap-1">
-                        <GitBranch className="h-3 w-3" />
-                        GitHub
+                        <Clock className="h-3 w-3" />
+                        Issue #{issue.issueNumber}
                       </div>
                     </div>
                   </div>
@@ -132,7 +122,18 @@ export function IssuesTab({
                         points
                       </div>
                     </div>
-                    <Button size="sm">Accept Bounty</Button>
+                    {issue.issueUrl && (
+                      <Button size="sm" variant="outline" asChild>
+                        <a
+                          href={issue.issueUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          View on GitHub
+                        </a>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardHeader>
