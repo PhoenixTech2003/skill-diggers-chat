@@ -29,5 +29,8 @@ export default defineSchema({
     openedBy: v.string(),
     body: v.string(),
     title: v.string(),
-  }),
+  })
+    .index("by_status_approved", ["status", "isApproved"])
+    .index("by_opened_by", ["openedBy"])
+    .index("by_approved_by", ["approvedBy"]),
 });

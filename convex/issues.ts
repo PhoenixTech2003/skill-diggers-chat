@@ -1,4 +1,4 @@
-import { mutation, action, internalMutation } from "./_generated/server";
+import { mutation, action, internalMutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Octokit } from "@octokit/rest";
 import { internal } from "./_generated/api";
@@ -74,6 +74,32 @@ export const approveIssueAction = action({
     } catch (error) {
       console.error(error);
       throw error;
+    }
+  },
+});
+
+export const getOpenAndApprovedIssues = query({
+  args: {},
+  handler: async (ctx) => {
+    try {
+      const data = await ctx.db
+        .query("githubIssue")
+        .withIndex("by_status_approved", (q) =>
+          q.eq("status", "open").eq("isApproved", true),
+        )
+        .collect();
+
+      return {
+        issuesData: data,
+        issuesDataError: null,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        issuesData: null,
+        issuesDataError:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      };
     }
   },
 });

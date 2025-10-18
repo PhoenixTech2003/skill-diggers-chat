@@ -9,6 +9,9 @@ import {
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Trophy, Medal, Award } from "lucide-react";
+import type { Preloaded } from "convex/react";
+import { usePreloadedQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
 
 const leaderboardData = [
   {
@@ -119,7 +122,15 @@ const getRankColor = (rank: number) => {
   }
 };
 
-export function LeaderboardTab() {
+export function LeaderboardTab({
+  preloadedIssues,
+}: {
+  preloadedIssues?: Preloaded<typeof api.issues.getOpenAndApprovedIssues>;
+}) {
+  const issues = preloadedIssues
+    ? usePreloadedQuery(preloadedIssues)
+    : undefined;
+
   return (
     <Card>
       <CardHeader>
