@@ -9,18 +9,12 @@ import { CreateIssueDialog } from "./_components/create-issue-dialog";
 
 export default function BoardPageServer() {
   const [activeTab, setActiveTab] = useState("leaderboard");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-foreground text-2xl font-bold">The Board</h2>
-        <Button
-          onClick={() => setIsCreateDialogOpen(true)}
-          className="bg-blue-600 text-white hover:bg-blue-700"
-        >
-          Create Issue
-        </Button>
+        <CreateIssueDialog />
       </div>
 
       <Tabs
@@ -39,11 +33,6 @@ export default function BoardPageServer() {
           <IssuesTab />
         </TabsContent>
       </Tabs>
-
-      <CreateIssueDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-      />
     </div>
   );
 }

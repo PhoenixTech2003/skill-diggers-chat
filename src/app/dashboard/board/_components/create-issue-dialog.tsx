@@ -10,21 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 
-interface CreateIssueDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function CreateIssueDialog({
-  open,
-  onOpenChange,
-}: CreateIssueDialogProps) {
+export function CreateIssueDialog() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -44,11 +37,16 @@ export function CreateIssueDialog({
       difficulty: "medium",
       tags: "",
     });
-    onOpenChange(false);
+    // Reset form after successful submission
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-blue-600 text-white hover:bg-blue-700">
+          Create Issue
+        </Button>
+      </DialogTrigger>
       <DialogContent className="bg-background border-border max-w-2xl border">
         <DialogHeader>
           <DialogTitle className="text-foreground">
@@ -148,7 +146,6 @@ export function CreateIssueDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
               className="border-border text-foreground hover:bg-secondary"
             >
               Cancel
