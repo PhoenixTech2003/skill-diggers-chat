@@ -15,6 +15,10 @@ export const theBoardFlag = flag({
     return sessionData;
   },
   decide({ entities }) {
-    return entities?.sessionData?.user.email === "phoenixtech2003@gmail.com";
+    return (
+      entities?.sessionData?.user.email === "phoenixtech2003@gmail.com" ||
+      entities?.sessionData?.user.email === "johsam.web@gmail.com" ||
+      entities?.sessionData?.user.email === "bis23-lmwase@mubas.ac.mw"
+    );
   },
 });
