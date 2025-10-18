@@ -11,8 +11,6 @@ import { internal } from "./_generated/api";
 import { authComponent } from "./auth";
 import { components } from "./_generated/api";
 
-const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN });
-
 export const createIssue = mutation({
   args: {
     body: v.string(),
@@ -79,7 +77,8 @@ export const approveIssueAction = action({
       if (!issue) {
         throw new Error("Issue not found");
       }
-
+      const accessToken = await ctx.runQuery(internal.auth.getAccessToken);
+      const octokit = new Octokit({ auth: accessToken });
       const { data } = await octokit.rest.issues.create({
         owner: "PhoenixTech2003",
         repo: "skill-diggers-chat",
