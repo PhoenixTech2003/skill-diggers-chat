@@ -20,14 +20,17 @@ export default defineSchema({
     isLastMessage: v.boolean(),
   }).index("by_room", ["roomId"]),
   githubIssue: defineTable({
-    issueUrl: v.string(),
+    issueUrl: v.optional(v.string()),
     points: v.number(),
     status: v.union(v.literal("open"), v.literal("closed")),
     isApproved: v.boolean(),
     approvedBy: v.optional(v.string()),
-    issueNumber: v.number(),
+    issueNumber: v.optional(v.number()),
     openedBy: v.string(),
     body: v.string(),
     title: v.string(),
-  }),
+  })
+    .index("by_status_approved", ["status", "isApproved"])
+    .index("by_opened_by", ["openedBy"])
+    .index("by_approved_by", ["approvedBy"]),
 });

@@ -1,4 +1,4 @@
-import { components, api } from "./_generated/api";
+import { components } from "./_generated/api";
 import { httpAction } from "./_generated/server";
 import { Webhooks } from "@octokit/webhooks";
 import { Octokit } from "@octokit/rest";
@@ -89,15 +89,6 @@ export const githubWebhook = httpAction(async (ctx, request) => {
         errorMessage = "User not found";
         return;
       }
-
-      await ctx.runMutation(api.issues.createIssue, {
-        issueUrl,
-        points: 0,
-        issueNumber,
-        openedBy: userdata.userData._id,
-        body: eventBody ?? "",
-        title: eventTitle,
-      });
       handled = true;
     } catch (e) {
       console.error("[webhooks] Handler error while creating issue", e);
