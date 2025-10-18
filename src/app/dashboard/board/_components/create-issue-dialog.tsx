@@ -1,8 +1,9 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -14,30 +15,50 @@ import {
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import { api } from "../../../../../convex/_generated/api";
+import { useMutation, useAction } from "convex/react";
 import { Textarea } from "~/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+
+const createIssueSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(100, "Title must be less than 100 characters"),
+  body: z
+    .string()
+    .min(1, "Description is required")
+    .max(1000, "Description must be less than 1000 characters"),
+});
+
+type CreateIssueForm = z.infer<typeof createIssueSchema>;
 
 export function CreateIssueDialog() {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    points: "",
-    difficulty: "medium",
-    tags: "",
+  const form = useForm<CreateIssueForm>({
+    resolver: zodResolver(createIssueSchema),
+    defaultValues: {
+      title: "",
+      body: "",
+    },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle issue creation here
-    console.log("Creating issue:", formData);
-    setFormData({
-      title: "",
-      description: "",
-      points: "",
-      difficulty: "medium",
-      tags: "",
+  const createIssue = useMutation(api.issues.createIssue);
+  const onSubmit = async (data: CreateIssueForm) => {
+    toast.promise(createIssue(data), {
+      loading: "Creating issue...",
+      success: () => {
+        form.reset();
+        return "Issue created! Awaiting admin approval.";
+      },
+      error: "Failed to create issue. Please try again.",
     });
-    // Reset form after successful submission
   };
 
   return (
@@ -57,107 +78,63 @@ export function CreateIssueDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-foreground">
-              Issue Title
-            </Label>
-            <Input
-              id="title"
-              placeholder="e.g., Implement dark mode toggle"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-              required
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Issue Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Implement dark mode toggle"
+                      className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-foreground">
-              Description
-            </Label>
-            <Textarea
-              id="description"
-              placeholder="Describe the issue in detail..."
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground min-h-24"
-              required
+            <FormField
+              control={form.control}
+              name="body"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe the issue in detail..."
+                      className="bg-secondary border-border text-foreground placeholder:text-muted-foreground min-h-24"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="points" className="text-foreground">
-                Points
-              </Label>
-              <Input
-                id="points"
-                type="number"
-                placeholder="e.g., 100"
-                value={formData.points}
-                onChange={(e) =>
-                  setFormData({ ...formData, points: e.target.value })
-                }
-                className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="difficulty" className="text-foreground">
-                Difficulty
-              </Label>
-              <select
-                id="difficulty"
-                value={formData.difficulty}
-                onChange={(e) =>
-                  setFormData({ ...formData, difficulty: e.target.value })
-                }
-                className="bg-secondary border-border text-foreground w-full rounded-md border px-3 py-2"
+            <DialogFooter className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-border text-foreground hover:bg-secondary"
+                onClick={() => form.reset()}
               >
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="tags" className="text-foreground">
-              Tags (comma-separated)
-            </Label>
-            <Input
-              id="tags"
-              placeholder="e.g., frontend, react, ui"
-              value={formData.tags}
-              onChange={(e) =>
-                setFormData({ ...formData, tags: e.target.value })
-              }
-              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-            />
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="border-border text-foreground hover:bg-secondary"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Create Issue
-            </Button>
-          </DialogFooter>
-        </form>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue-600 text-white hover:bg-blue-700"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Creating..." : "Create Issue"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
