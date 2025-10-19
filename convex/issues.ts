@@ -64,6 +64,7 @@ export const getIssueById = internalQuery({
 
 export const approveIssueAction = action({
   args: {
+    openedById: v.string(),
     issueId: v.id("githubIssue"),
     points: v.number(),
   },
@@ -77,7 +78,18 @@ export const approveIssueAction = action({
       if (!issue) {
         throw new Error("Issue not found");
       }
-      const accessToken = await ctx.runQuery(internal.auth.getAccessToken);
+
+      const userAccountInfo = await ctx.runQuery(
+        components.betterAuth.users.getUserAccountByUserIdAndProviderID,
+        {
+          providerId: "github",
+          userId: args.openedById,
+        },
+      );
+      console.log("this is the account", userAccountInfo.accountId);
+      const accessToken = await ctx.runQuery(internal.auth.getAccessToken, {
+        accountId: userAccountInfo._id,
+      });
       const octokit = new Octokit({ auth: accessToken });
       const { data } = await octokit.rest.issues.create({
         owner: "PhoenixTech2003",

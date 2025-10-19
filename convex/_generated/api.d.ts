@@ -1022,6 +1022,12 @@ export declare const components: {
     };
     users: {
       getUser: FunctionReference<"query", "internal", { userId: string }, any>;
+      getUserAccountByUserIdAndProviderID: FunctionReference<
+        "query",
+        "internal",
+        { providerId: "github"; userId: string },
+        any
+      >;
       getUserByEmail: FunctionReference<
         "query",
         "internal",
