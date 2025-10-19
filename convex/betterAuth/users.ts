@@ -33,3 +33,24 @@ export const getUserByEmail = query({
     }
   },
 });
+
+export const getUserAccountByUserIdAndProviderID = query({
+  args: {
+    userId: v.string(),
+    providerId: v.union(v.literal("github")),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const userAccountData = await ctx.db
+        .query("account")
+        .withIndex("providerId_userId", (q) =>
+          q.eq("providerId", args.providerId).eq("userId", args.userId),
+        )
+        .first();
+      return userAccountData;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+});

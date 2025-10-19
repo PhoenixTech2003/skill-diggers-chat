@@ -6,6 +6,7 @@ import { internalQuery, query } from "./_generated/server";
 import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins";
 import authSchema from "./betterAuth/schema";
+import { v } from "convex/values";
 
 const siteUrl = process.env.SITE_URL!;
 
@@ -56,12 +57,15 @@ export const getCurrentUser = query({
 });
 
 export const getAccessToken = internalQuery({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    accountId: v.string(),
+  },
+  handler: async (ctx, args) => {
     try {
       const { accessToken } = await createAuth(ctx).api.getAccessToken({
         body: {
           providerId: "github",
+          accountId: args.accountId,
         },
         headers: await authComponent.getHeaders(ctx),
       });

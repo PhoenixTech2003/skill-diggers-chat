@@ -992,6 +992,12 @@ export type Mounts = {
   };
   users: {
     getUser: FunctionReference<"query", "public", { userId: string }, any>;
+    getUserAccountByUserIdAndProviderID: FunctionReference<
+      "query",
+      "public",
+      { providerId: "github"; userId: string },
+      any
+    >;
     getUserByEmail: FunctionReference<
       "query",
       "public",

@@ -59,6 +59,7 @@ export function AssignPointsDialog({
       approveIssue({
         issueId: issue._id,
         points: data.points,
+        openedById: issue.openedBy,
       }),
       {
         loading: "Approving issue...",
