@@ -3,15 +3,16 @@ import { notFound } from "next/navigation";
 import { useMDXComponents } from "~/mdx-components";
 
 interface ChangelogSlugPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default async function ChangelogSlugPage({
   params,
 }: ChangelogSlugPageProps) {
-  const entry = await getEntryBySlug(params.slug);
+  const slug = (await params).slug;
+  const entry = await getEntryBySlug(slug);
 
   if (!entry) {
     notFound();
