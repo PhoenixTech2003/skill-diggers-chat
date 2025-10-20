@@ -119,7 +119,7 @@ export function IssuesTab({
             </div>
           </div>
         ) : (
-          list.map((issue: any) => (
+          list.map((issue) => (
             <Card
               key={issue._id}
               className="hover:bg-accent/50 transition-colors"
