@@ -89,8 +89,9 @@ export const approveIssueAction = action({
       console.log("this is the account", userAccountInfo.accountId);
       console.log("this is the opened by id", args.openedById);
       console.log("this is the _id", userAccountInfo._id);
-      const accessToken = await ctx.runQuery(internal.auth.getAccessToken, {
+      const accessToken = await ctx.runAction(internal.auth.getAccessToken, {
         accountId: userAccountInfo._id,
+        userId: args.openedById,
       });
       const octokit = new Octokit({ auth: accessToken });
       const { data } = await octokit.rest.issues.create({
