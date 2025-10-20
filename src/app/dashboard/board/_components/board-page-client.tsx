@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Preloaded } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { LeaderboardTab } from "./leaderboard-tab";
@@ -10,10 +11,19 @@ import { CreateIssueButton } from "./create-issue-button";
 
 interface BoardPageClientProps {
   preloadedIssues: Preloaded<typeof api.issues.getOpenAndApprovedIssues>;
+  preloadedLeaderboard: Preloaded<typeof api.leaderboard.getLeaderboard>;
 }
 
-export function BoardPageClient({ preloadedIssues }: BoardPageClientProps) {
+export function BoardPageClient({
+  preloadedIssues,
+  preloadedLeaderboard,
+}: BoardPageClientProps) {
   const [activeTab, setActiveTab] = useState("leaderboard");
+  const enrollUser = useMutation(api.leaderboard.enrollCurrentUser);
+
+  useEffect(() => {
+    enrollUser({}).catch(console.error);
+  });
 
   return (
     <div className="space-y-4">
@@ -32,7 +42,7 @@ export function BoardPageClient({ preloadedIssues }: BoardPageClientProps) {
           <TabsTrigger value="issues">Issues</TabsTrigger>
         </TabsList>
         <TabsContent value="leaderboard" className="space-y-4">
-          <LeaderboardTab preloadedIssues={preloadedIssues} />
+          <LeaderboardTab preloadedLeaderboard={preloadedLeaderboard} />
         </TabsContent>
         <TabsContent value="issues" className="space-y-4">
           <IssuesTab preloadedIssues={preloadedIssues} />

@@ -8,93 +8,21 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Trophy, Medal, Award } from "lucide-react";
 import type { Preloaded } from "convex/react";
 import { usePreloadedQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 
-const leaderboardData = [
-  {
-    id: 1,
-    name: "Sarah Chen",
-    username: "sarahc",
-    points: 2450,
-    avatar: "SC",
-    rank: 1,
-  },
-  {
-    id: 2,
-    name: "Alex Kumar",
-    username: "alexk",
-    points: 2180,
-    avatar: "AK",
-    rank: 2,
-  },
-  {
-    id: 3,
-    name: "Jordan Lee",
-    username: "jordanl",
-    points: 1950,
-    avatar: "JL",
-    rank: 3,
-  },
-  {
-    id: 4,
-    name: "Taylor Swift",
-    username: "tswift",
-    points: 1720,
-    avatar: "TS",
-    rank: 4,
-  },
-  {
-    id: 5,
-    name: "Morgan Davis",
-    username: "morgand",
-    points: 1580,
-    avatar: "MD",
-    rank: 5,
-  },
-  {
-    id: 6,
-    name: "Casey Brown",
-    username: "caseyb",
-    points: 1420,
-    avatar: "CB",
-    rank: 6,
-  },
-  {
-    id: 7,
-    name: "Riley Johnson",
-    username: "rileyj",
-    points: 1290,
-    avatar: "RJ",
-    rank: 7,
-  },
-  {
-    id: 8,
-    name: "Jamie Wilson",
-    username: "jamiew",
-    points: 1150,
-    avatar: "JW",
-    rank: 8,
-  },
-  {
-    id: 9,
-    name: "Avery Martinez",
-    username: "averym",
-    points: 980,
-    avatar: "AM",
-    rank: 9,
-  },
-  {
-    id: 10,
-    name: "Quinn Anderson",
-    username: "quinna",
-    points: 850,
-    avatar: "QA",
-    rank: 10,
-  },
-];
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+};
 
 const getRankIcon = (rank: number) => {
   switch (rank) {
@@ -123,13 +51,50 @@ const getRankColor = (rank: number) => {
 };
 
 export function LeaderboardTab({
-  preloadedIssues,
+  preloadedLeaderboard,
 }: {
-  preloadedIssues?: Preloaded<typeof api.issues.getOpenAndApprovedIssues>;
+  preloadedLeaderboard: Preloaded<typeof api.leaderboard.getLeaderboard>;
 }) {
-  const issues = preloadedIssues
-    ? usePreloadedQuery(preloadedIssues)
-    : undefined;
+  const { leaderboardData, leaderboardDataError } =
+    usePreloadedQuery(preloadedLeaderboard);
+
+  if (leaderboardDataError) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Contributors</CardTitle>
+          <CardDescription>
+            Developers ranked by points earned from completing bounties
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="py-8 text-center">
+            <p className="text-muted-foreground">
+              Failed to load leaderboard data
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!leaderboardData || leaderboardData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Contributors</CardTitle>
+          <CardDescription>
+            Developers ranked by points earned from completing bounties
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="py-8 text-center">
+            <p className="text-muted-foreground">No contributors yet</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -141,39 +106,43 @@ export function LeaderboardTab({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {leaderboardData.map((user) => (
-            <div
-              key={user.id}
-              className={`hover:bg-accent/50 flex items-center gap-4 rounded-lg border p-4 transition-colors ${getRankColor(user.rank)}`}
-            >
-              <div className="flex flex-1 items-center gap-3">
-                <div className="flex w-8 items-center justify-center">
-                  {getRankIcon(user.rank) || (
-                    <span className="text-muted-foreground text-sm font-bold">
-                      #{user.rank}
-                    </span>
-                  )}
-                </div>
-                <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-full">
-                  <span className="text-primary-foreground text-sm font-medium">
-                    {user.avatar}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{user.name}</p>
-                  <p className="text-muted-foreground text-xs">
-                    @{user.username}
-                  </p>
-                </div>
-              </div>
-              <Badge
-                variant="secondary"
-                className="px-4 py-1 text-base font-bold"
+          {leaderboardData.map((user, index) => {
+            const rank = index + 1;
+            const name = user.name || "Unknown User";
+            const initials = getInitials(name);
+
+            return (
+              <div
+                key={user._id}
+                className={`hover:bg-accent/50 flex items-center gap-4 rounded-lg border p-4 transition-colors ${getRankColor(rank)}`}
               >
-                {user.points.toLocaleString()} pts
-              </Badge>
-            </div>
-          ))}
+                <div className="flex flex-1 items-center gap-3">
+                  <div className="flex w-8 items-center justify-center">
+                    {getRankIcon(rank) || (
+                      <span className="text-muted-foreground text-sm font-bold">
+                        #{rank}
+                      </span>
+                    )}
+                  </div>
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={user.image || undefined} alt={name} />
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{name}</p>
+                  </div>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className="px-4 py-1 text-base font-bold"
+                >
+                  {user.points.toLocaleString()} pts
+                </Badge>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

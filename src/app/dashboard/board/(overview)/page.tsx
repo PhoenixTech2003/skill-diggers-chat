@@ -16,5 +16,15 @@ export default async function BoardPageServer() {
     {},
   );
 
-  return <BoardPageClient preloadedIssues={preloadedIssues} />;
+  const preloadedLeaderboard = await preloadQuery(
+    api.leaderboard.getLeaderboard,
+    {},
+  );
+
+  return (
+    <BoardPageClient
+      preloadedIssues={preloadedIssues}
+      preloadedLeaderboard={preloadedLeaderboard}
+    />
+  );
 }
