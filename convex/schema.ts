@@ -33,4 +33,23 @@ export default defineSchema({
     .index("by_status_approved", ["status", "isApproved"])
     .index("by_opened_by", ["openedBy"])
     .index("by_approved_by", ["approvedBy"]),
+  issueUsers: defineTable({
+    issueId: v.id("githubIssue"),
+    userId: v.string(),
+    branchName: v.string(),
+    pullRequestIsOpened: v.optional(v.boolean()),
+    status: v.union(
+      v.literal("accepted"),
+      v.literal("completed"),
+      v.literal("abandoned"),
+    ),
+  })
+    .index("by_issue_user", ["issueId", "userId"])
+    .index("by_user", ["userId"]),
+  leaderboard: defineTable({
+    userId: v.string(),
+    points: v.number(),
+  })
+    .index("by_points", ["points"])
+    .index("by_user", ["userId"]),
 });

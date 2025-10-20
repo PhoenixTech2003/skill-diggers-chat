@@ -13,6 +13,17 @@ import { GitBranch, Users, Clock } from "lucide-react";
 import type { Preloaded } from "convex/react";
 import { usePreloadedQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
+import { useAction, useQuery } from "convex/react";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { toast } from "sonner";
 
 const getDifficultyColor = (points: number) => {
   if (points <= 10) {
@@ -30,6 +41,11 @@ export function IssuesTab({
   preloadedIssues: Preloaded<typeof api.issues.getOpenAndApprovedIssues>;
 }) {
   const { issuesData, issuesDataError } = usePreloadedQuery(preloadedIssues);
+  const unaccepted = useQuery(api.issues.getUnacceptedForUser, {});
+  const acceptBounty = useAction(api.issues.acceptBountyAndCreateBranch);
+  const [dialogIssue, setDialogIssue] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showUnaccepted, setShowUnaccepted] = useState(false);
 
   if (issuesDataError) {
     return (
@@ -66,31 +82,44 @@ export function IssuesTab({
     );
   }
 
+  const list = showUnaccepted ? unaccepted?.issuesData : issuesData;
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Available Bounties</CardTitle>
           <CardDescription>
-            Accept a bounty and start earning points by solving issues
+            {showUnaccepted
+              ? "Issues you have not accepted yet"
+              : "Accept a bounty and start earning points by solving issues"}
           </CardDescription>
         </CardHeader>
       </Card>
 
       <div className="grid gap-4">
-        {issuesData.length === 0 ? (
+        {!list ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <CardTitle className="text-muted-foreground mb-2">
+                Loading Issues
+              </CardTitle>
+              <CardDescription>Please wait...</CardDescription>
+            </div>
+          </div>
+        ) : list.length === 0 ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <CardTitle className="text-muted-foreground mb-2">
                 No Issues Available
               </CardTitle>
               <CardDescription>
-                No approved issues available at the moment.
+                No issues to show at the moment.
               </CardDescription>
             </div>
           </div>
         ) : (
-          issuesData.map((issue) => (
+          list.map((issue: any) => (
             <Card
               key={issue._id}
               className="hover:bg-accent/50 transition-colors"
@@ -132,7 +161,9 @@ export function IssuesTab({
                         points
                       </div>
                     </div>
-                    <Button size="sm">Accept Bounty</Button>
+                    <Button size="sm" onClick={() => setDialogIssue(issue)}>
+                      Accept Bounty
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -140,6 +171,54 @@ export function IssuesTab({
           ))
         )}
       </div>
+
+      <Dialog
+        open={!!dialogIssue}
+        onOpenChange={(open) => !open && setDialogIssue(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Accept this bounty?</DialogTitle>
+            <DialogDescription>
+              This will create a new Git branch in the Skill Diggers repo using
+              the format:{" "}
+              {dialogIssue
+                ? `#${dialogIssue.issueNumber}-${dialogIssue.title.replace(/\s+/g, "-").toLowerCase()}-yourusername`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDialogIssue(null)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!dialogIssue) return;
+                try {
+                  setIsSubmitting(true);
+                  const result = await acceptBounty({
+                    issueId: dialogIssue._id,
+                  });
+                  toast.success(`Branch created: ${result.branchName}`);
+                  setDialogIssue(null);
+                  setShowUnaccepted(true);
+                } catch (e: any) {
+                  toast.error(e?.message ?? "Failed to accept bounty");
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating..." : "Proceed"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

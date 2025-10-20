@@ -16,6 +16,7 @@ import type * as betterAuth_auth from "../betterAuth/auth.js";
 import type * as betterAuth_users from "../betterAuth/users.js";
 import type * as http from "../http.js";
 import type * as issues from "../issues.js";
+import type * as leaderboard from "../leaderboard.js";
 import type * as messages from "../messages.js";
 import type * as rooms from "../rooms.js";
 import type * as users from "../users.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   "betterAuth/users": typeof betterAuth_users;
   http: typeof http;
   issues: typeof issues;
+  leaderboard: typeof leaderboard;
   messages: typeof messages;
   rooms: typeof rooms;
   users: typeof users;
