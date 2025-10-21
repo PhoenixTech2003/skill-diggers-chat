@@ -1,22 +1,11 @@
-import { fetchQuery, preloadQuery } from "convex/nextjs";
-import { api } from "../../../../convex/_generated/api";
-import DashboardOverviewPage from "./_components/dashboard-overview-page";
-import { getToken } from "~/lib/auth-server";
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { DashboardContent } from "./_components/dashboard-content";
+import { LoadingSkeleton } from "./_components/loading-skeleton";
 
-export default async function DashboardOverviewPageServer() {
-  const token = await getToken();
-  const { sessionData, sessionDataError } = await fetchQuery(
-    api.users.getLoggedUserSession,
-    {},
-    { token },
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   );
-  if (sessionDataError) {
-    throw new Error(sessionDataError);
-  }
-  if (!sessionData?.session) {
-    redirect("/auth/login");
-  }
-  const roomsData = await preloadQuery(api.rooms.getRooms);
-  return <DashboardOverviewPage preloaded={roomsData} />;
 }
