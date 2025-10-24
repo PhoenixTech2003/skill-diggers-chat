@@ -6,7 +6,7 @@ import { Users, CheckCircle, ArrowRight, Target } from "lucide-react";
 import { authClient } from "~/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
-import { api } from "convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import { StatCard } from "./stat-card";
 import { AnimatedPointsCard } from "./animated-points-card";
 
