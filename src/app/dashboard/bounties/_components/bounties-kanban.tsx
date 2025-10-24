@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type {
