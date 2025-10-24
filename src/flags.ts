@@ -15,6 +15,6 @@ export const theBoardFlag = flag({
     return sessionData;
   },
   decide({ entities }) {
-    return entities?.sessionData?.user.email === "phoenixtech2003@gmail.com";
+    return true;
   },
 });

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Code2,
   MessageSquare,
+  LayoutDashboard,
   ChevronDown,
   ChevronRight,
   Trophy,
@@ -81,8 +82,16 @@ export function AppSidebar({
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === "/dashboard"}>
                   <Link href="/dashboard">
-                    <MessageSquare className="h-4 w-4" />
+                    <LayoutDashboard className="h-4 w-4" />
                     <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/discover"}>
+                  <Link href="/dashboard/discover">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Discover Rooms</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

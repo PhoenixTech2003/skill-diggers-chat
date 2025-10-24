@@ -3,7 +3,7 @@ import { RoomCard } from "./room-card";
 import type { api } from "../../../../../convex/_generated/api";
 import { type Preloaded, usePreloadedQuery } from "convex/react";
 
-export default function DashboardOverviewPage(props: {
+export default function DiscoverRoomsOverviewPage(props: {
   preloaded: Preloaded<typeof api.rooms.getRooms>;
 }) {
   const { roomsData, roomsDataError } = usePreloadedQuery(props.preloaded);

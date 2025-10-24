@@ -14,6 +14,8 @@ import type * as betterAuth__generated_server from "../betterAuth/_generated/ser
 import type * as betterAuth_adapter from "../betterAuth/adapter.js";
 import type * as betterAuth_auth from "../betterAuth/auth.js";
 import type * as betterAuth_users from "../betterAuth/users.js";
+import type * as bounties from "../bounties.js";
+import type * as dashboard from "../dashboard.js";
 import type * as http from "../http.js";
 import type * as issues from "../issues.js";
 import type * as leaderboard from "../leaderboard.js";
@@ -43,6 +45,8 @@ declare const fullApi: ApiFromModules<{
   "betterAuth/adapter": typeof betterAuth_adapter;
   "betterAuth/auth": typeof betterAuth_auth;
   "betterAuth/users": typeof betterAuth_users;
+  bounties: typeof bounties;
+  dashboard: typeof dashboard;
   http: typeof http;
   issues: typeof issues;
   leaderboard: typeof leaderboard;
