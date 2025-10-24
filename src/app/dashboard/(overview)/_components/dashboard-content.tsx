@@ -88,7 +88,7 @@ export function DashboardContent() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Button
-              onClick={() => router.push("/dashboard/board")}
+              onClick={() => router.push("/dashboard/bounties")}
               className="w-full justify-start"
             >
               <Target className="mr-2 h-4 w-4" />

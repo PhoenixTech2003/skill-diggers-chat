@@ -40,6 +40,8 @@ export default defineSchema({
     pullRequestIsOpened: v.optional(v.boolean()),
     status: v.union(
       v.literal("accepted"),
+      v.literal("in_progress"),
+      v.literal("under_review"),
       v.literal("completed"),
       v.literal("abandoned"),
     ),
