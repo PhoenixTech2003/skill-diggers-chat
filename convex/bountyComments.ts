@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { authComponent } from "./auth";
+import { components } from "./_generated/api";
 
 export const getBountyComments = query({
   args: {
@@ -238,6 +239,14 @@ export const getSubmittedBounties = query({
           const issue = await ctx.db.get(bounty.issueId);
           if (!issue) return null;
 
+          // Get the actual user name
+          const userData = await ctx.runQuery(
+            components.betterAuth.users.getUser,
+            {
+              userId: bounty.userId,
+            },
+          );
+
           return {
             id: bounty._id,
             name: issue.title,
@@ -251,7 +260,7 @@ export const getSubmittedBounties = query({
             openedBy: issue.openedBy,
             approvedBy: issue.approvedBy,
             userId: bounty.userId,
-            userName: `User ${bounty.userId.slice(-6)}`, // Use last 6 chars of userId as display name
+            userName: userData.userData?.name || "Unknown User",
             submittedAt: bounty._creationTime,
           };
         }),

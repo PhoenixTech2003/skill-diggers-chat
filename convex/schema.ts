@@ -47,7 +47,8 @@ export default defineSchema({
     ),
   })
     .index("by_issue_user", ["issueId", "userId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    .index("by_issue", ["issueId"]),
   leaderboard: defineTable({
     userId: v.string(),
     points: v.number(),

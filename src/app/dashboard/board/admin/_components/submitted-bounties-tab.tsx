@@ -4,9 +4,17 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { MessageCircle, User, Calendar } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import {
+  MessageCircle,
+  User,
+  Calendar,
+  GitBranch,
+  ExternalLink,
+} from "lucide-react";
 import { useState } from "react";
 import { BountyChatSheet } from "../../../bounties/_components/bounty-chat-sheet";
+import { AcceptBountyDialog } from "./accept-bounty-dialog";
 
 interface SubmittedBounty {
   id: string;
@@ -32,6 +40,10 @@ export function SubmittedBountiesTab() {
     null,
   );
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
+  const [bountyToAccept, setBountyToAccept] = useState<SubmittedBounty | null>(
+    null,
+  );
 
   // Handle loading and error states
   if (bountiesData?.bountiesDataError) {
@@ -58,6 +70,14 @@ export function SubmittedBountiesTab() {
     setSelectedBounty(bounty);
     setIsChatOpen(true);
   };
+
+  const handleAcceptClick = (bounty: SubmittedBounty) => {
+    setBountyToAccept(bounty);
+    setAcceptDialogOpen(true);
+  };
+
+  const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER || "PhoenixTech2003";
+  const repo = process.env.NEXT_PUBLIC_GITHUB_REPO || "skill-diggers-chat";
 
   if (bounties.length === 0) {
     return (
@@ -118,7 +138,25 @@ export function SubmittedBountiesTab() {
                     {new Date(bounty.submittedAt).toLocaleDateString()}
                   </span>
                 </div>
+                <a
+                  href={`https://github.com/${owner}/${repo}/tree/${bounty.branchName}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-xs transition-colors"
+                >
+                  <GitBranch className="h-3 w-3" />
+                  <span className="truncate">{bounty.branchName}</span>
+                  <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                </a>
               </div>
+
+              <Button
+                onClick={() => handleAcceptClick(bounty)}
+                className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                size="sm"
+              >
+                Accept Bounty
+              </Button>
             </div>
           </Card>
         ))}
@@ -132,6 +170,15 @@ export function SubmittedBountiesTab() {
           isOpen={isChatOpen}
           onOpenChange={setIsChatOpen}
           isAdmin={true}
+        />
+      )}
+
+      {/* Accept Bounty Dialog */}
+      {bountyToAccept && (
+        <AcceptBountyDialog
+          bounty={bountyToAccept}
+          isOpen={acceptDialogOpen}
+          onOpenChange={setAcceptDialogOpen}
         />
       )}
     </div>

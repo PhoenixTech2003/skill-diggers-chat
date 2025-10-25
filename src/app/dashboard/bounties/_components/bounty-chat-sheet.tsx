@@ -11,6 +11,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "~/components/ui/sheet";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { Badge } from "~/components/ui/badge";
 import { Send, User, Shield } from "lucide-react";
 import type { Id } from "convex/_generated/dataModel";
@@ -90,51 +91,53 @@ export function BountyChatSheet({
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-4 flex h-[calc(100vh-12rem)] flex-col">
+        <div className="mt-4 flex flex-col">
           {/* Messages List */}
-          <div className="flex-1 space-y-3 overflow-y-auto px-1 pb-4">
-            {comments && comments.length > 0 ? (
-              comments.map((comment) => (
-                <div
-                  key={comment._id}
-                  className={`flex gap-2 ${
-                    comment.isAdminMessage ? "justify-end" : "justify-start"
-                  }`}
-                >
+          <ScrollArea className="mb-6 h-[calc(100vh-20rem)]">
+            <div className="space-y-3 px-4 pb-4">
+              {comments && comments.length > 0 ? (
+                comments.map((comment) => (
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      comment.isAdminMessage
-                        ? "border border-blue-500/20 bg-blue-500/10"
-                        : "bg-muted"
+                    key={comment._id}
+                    className={`flex gap-2 ${
+                      comment.isAdminMessage ? "justify-end" : "justify-start"
                     }`}
                   >
-                    <div className="mb-1 flex items-center gap-2">
-                      {comment.isAdminMessage ? (
-                        <Shield className="h-3 w-3 text-blue-600" />
-                      ) : (
-                        <User className="text-muted-foreground h-3 w-3" />
-                      )}
-                      <span className="text-xs font-medium">
-                        {comment.isAdminMessage ? "Admin" : "You"}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {new Date(comment.createdAt).toLocaleString()}
-                      </span>
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        comment.isAdminMessage
+                          ? "border border-blue-500/20 bg-blue-500/10"
+                          : "bg-muted"
+                      }`}
+                    >
+                      <div className="mb-1 flex items-center gap-2">
+                        {comment.isAdminMessage ? (
+                          <Shield className="h-3 w-3 text-blue-600" />
+                        ) : (
+                          <User className="text-muted-foreground h-3 w-3" />
+                        )}
+                        <span className="text-xs font-medium">
+                          {comment.isAdminMessage ? "Admin" : "You"}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {new Date(comment.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="text-sm">{comment.message}</p>
                     </div>
-                    <p className="text-sm">{comment.message}</p>
                   </div>
+                ))
+              ) : (
+                <div className="text-muted-foreground py-8 text-center">
+                  <p className="text-sm">No messages yet</p>
+                  <p className="text-xs">
+                    Start a conversation about this bounty
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="text-muted-foreground py-8 text-center">
-                <p className="text-sm">No messages yet</p>
-                <p className="text-xs">
-                  Start a conversation about this bounty
-                </p>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
 
           {/* Fixed Message Input at Bottom */}
           <div className="bg-background border-t p-4">
