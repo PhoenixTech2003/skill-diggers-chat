@@ -54,4 +54,20 @@ export default defineSchema({
   })
     .index("by_points", ["points"])
     .index("by_user", ["userId"]),
+  bountyComment: defineTable({
+    issueUserId: v.id("issueUsers"),
+    userId: v.string(),
+    message: v.string(),
+    isAdminMessage: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_issue_user", ["issueUserId"])
+    .index("by_user", ["userId"]),
+  bountyCommentRead: defineTable({
+    commentId: v.id("bountyComment"),
+    userId: v.string(),
+    readAt: v.number(),
+  })
+    .index("by_comment_user", ["commentId", "userId"])
+    .index("by_user", ["userId"]),
 });

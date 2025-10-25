@@ -14,6 +14,7 @@ import type {
 } from "@hello-pangea/dnd";
 import { BountyCard } from "./bounty-card";
 import { ReviewConfirmationDialog } from "./review-confirmation-dialog";
+import { BountyChatSheet } from "./bounty-chat-sheet";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import type { Id } from "convex/_generated/dataModel";
@@ -67,6 +68,8 @@ export function BountiesKanban() {
     bounty: Bounty;
     newColumn: string;
   } | null>(null);
+  const [selectedBounty, setSelectedBounty] = useState<Bounty | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Update local state when data changes
   useEffect(() => {
@@ -223,6 +226,11 @@ export function BountiesKanban() {
     setPendingBounty(null);
   };
 
+  const handleMessageClick = (bounty: Bounty) => {
+    setSelectedBounty(bounty);
+    setIsChatOpen(true);
+  };
+
   return (
     <div className="p-6">
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -295,6 +303,9 @@ export function BountiesKanban() {
                                     issueNumber={bounty.issueNumber}
                                     issueUrl={bounty.issueUrl}
                                     branchName={bounty.branchName}
+                                    onMessageClick={() =>
+                                      handleMessageClick(bounty)
+                                    }
                                   />
                                 </Card>
                               </div>
@@ -321,6 +332,17 @@ export function BountiesKanban() {
         onCancel={handleCancelSubmission}
         isLoading={isSubmitting}
       />
+
+      {/* Chat Sheet */}
+      {selectedBounty && (
+        <BountyChatSheet
+          bountyId={selectedBounty.id}
+          bountyName={selectedBounty.name}
+          isOpen={isChatOpen}
+          onOpenChange={setIsChatOpen}
+          isAdmin={false}
+        />
+      )}
     </div>
   );
 }

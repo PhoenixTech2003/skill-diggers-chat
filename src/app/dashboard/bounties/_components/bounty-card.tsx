@@ -1,5 +1,5 @@
 import { Badge } from "~/components/ui/badge";
-import { ExternalLink, GitBranch } from "lucide-react";
+import { ExternalLink, GitBranch, MessageCircle } from "lucide-react";
 
 interface BountyCardProps {
   name: string;
@@ -7,6 +7,8 @@ interface BountyCardProps {
   issueNumber?: number;
   issueUrl?: string;
   branchName: string;
+  unreadCount?: number;
+  onMessageClick?: () => void;
 }
 
 export function BountyCard({
@@ -15,6 +17,8 @@ export function BountyCard({
   issueNumber,
   issueUrl,
   branchName,
+  unreadCount = 0,
+  onMessageClick,
 }: BountyCardProps) {
   return (
     <div className="w-full min-w-0 space-y-3">
@@ -37,16 +41,35 @@ export function BountyCard({
           <GitBranch className="mt-0.5 h-3 w-3 flex-shrink-0" />
           <span className="truncate">{branchName}</span>
         </div>
-        {issueUrl && (
-          <a
-            href={issueUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors"
-          >
-            <ExternalLink className="h-3 w-3" />
-          </a>
-        )}
+        <div className="flex items-center gap-1">
+          {onMessageClick && (
+            <button
+              onClick={onMessageClick}
+              className="text-muted-foreground hover:text-foreground relative p-1 transition-colors"
+              title="View messages"
+            >
+              <MessageCircle className="h-3 w-3" />
+              {unreadCount > 0 && (
+                <Badge
+                  variant="default"
+                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center bg-blue-600 p-0 text-xs text-white"
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </Badge>
+              )}
+            </button>
+          )}
+          {issueUrl && (
+            <a
+              href={issueUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors"
+            >
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
