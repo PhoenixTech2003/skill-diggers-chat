@@ -2,12 +2,8 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
-import { BountyCard } from "./bounty-card";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { MessageCircle } from "lucide-react";
-import { useState } from "react";
-import { BountyChatSheet } from "./bounty-chat-sheet";
 
 interface Bounty {
   id: string;
@@ -27,8 +23,6 @@ interface Bounty {
 
 export function CompletedBounties() {
   const bountiesData = useQuery(api.bountyComments.getCompletedBounties);
-  const [selectedBounty, setSelectedBounty] = useState<Bounty | null>(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Handle loading and error states
   if (bountiesData?.bountiesDataError) {
@@ -50,11 +44,6 @@ export function CompletedBounties() {
   const bounties = bountiesData.bountiesData.filter(
     (bounty) => bounty !== null,
   ) as Bounty[];
-
-  const handleMessageClick = (bounty: Bounty) => {
-    setSelectedBounty(bounty);
-    setIsChatOpen(true);
-  };
 
   if (bounties.length === 0) {
     return (
@@ -91,13 +80,6 @@ export function CompletedBounties() {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleMessageClick(bounty)}
-                  className="text-muted-foreground hover:text-foreground p-1 transition-colors"
-                  title="View messages"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                </button>
               </div>
 
               <div className="text-muted-foreground text-xs">
@@ -107,17 +89,6 @@ export function CompletedBounties() {
           </Card>
         ))}
       </div>
-
-      {/* Chat Sheet */}
-      {selectedBounty && (
-        <BountyChatSheet
-          bountyId={selectedBounty.id}
-          bountyName={selectedBounty.name}
-          isOpen={isChatOpen}
-          onOpenChange={setIsChatOpen}
-          isAdmin={false}
-        />
-      )}
     </div>
   );
 }

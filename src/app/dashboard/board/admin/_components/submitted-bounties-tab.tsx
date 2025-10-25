@@ -117,13 +117,15 @@ export function SubmittedBountiesTab() {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleMessageClick(bounty)}
-                  className="text-muted-foreground hover:text-foreground p-1 transition-colors"
-                  title="View messages"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                </button>
+                {bounty.column === "under_review" && (
+                  <button
+                    onClick={() => handleMessageClick(bounty)}
+                    className="text-muted-foreground hover:text-foreground p-1 transition-colors"
+                    title="View messages"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                  </button>
+                )}
               </div>
 
               <div className="space-y-2">
