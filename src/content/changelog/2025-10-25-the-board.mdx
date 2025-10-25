@@ -1,0 +1,367 @@
+---
+date: "2025-10-25"
+title: "The Board - Bounty Management System"
+slug: "2025-10-25-the-board"
+summary: "Complete bounty management system with kanban board, leaderboard, and GitHub integration"
+---
+
+export const metadata = {
+  date: "2025-10-25",
+  title: "The Board - Bounty Management System",
+  slug: "2025-10-25-the-board",
+  summary:
+    "Complete bounty management system with kanban board, leaderboard, and GitHub integration",
+};
+
+# 🎯 The Board - Bounty Management System
+
+<div className="text-muted-foreground mb-8 text-lg">
+  We're thrilled to introduce The Board, our comprehensive bounty management
+  system that gamifies contributions, streamlines development workflows, and
+  connects our community through a powerful GitHub-integrated platform.
+</div>
+
+## ✨ What's New
+
+<div className="my-6 grid gap-4 md:grid-cols-2">
+  <div className="bg-card rounded-lg border p-4">
+    <h3 className="mb-2 text-lg font-semibold">📋 Bounties Kanban Board</h3>
+    <div className="text-muted-foreground">
+      Drag-and-drop interface for managing bounty progress through clear
+      workflow stages.
+    </div>
+  </div>
+  <div className="bg-card rounded-lg border p-4">
+    <h3 className="mb-2 text-lg font-semibold">🏆 Leaderboard System</h3>
+    <div className="text-muted-foreground">
+      Track top contributors, earn points, and compete with the community for
+      recognition.
+    </div>
+  </div>
+  <div className="bg-card rounded-lg border p-4">
+    <h3 className="mb-2 text-lg font-semibold">💬 Real-time Comments</h3>
+    <div className="text-muted-foreground">
+      Communicate directly with admins about specific bounties and get instant
+      feedback.
+    </div>
+  </div>
+  <div className="bg-card rounded-lg border p-4">
+    <h3 className="mb-2 text-lg font-semibold">🔗 GitHub Integration</h3>
+    <div className="text-muted-foreground">
+      Automatic PR creation, merging, and issue closure with seamless GitHub
+      workflows.
+    </div>
+  </div>
+</div>
+
+## 🚀 Key Features
+
+### For Contributors
+
+<div className="my-6">
+  <ul className="space-y-3">
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>Browse and accept available bounties from approved issues</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>
+        Track bounty progress through kanban columns (Accepted → In Progress →
+        Under Review → Completed)
+      </span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>Create branches automatically when accepting bounties</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>Drag and drop bounties between status columns</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>Submit bounties for review by moving to "Under Review"</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>Chat with admins about specific bounties</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>View completed bounties history</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>Earn points for completed bounties</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-green-500">✓</span>
+      <span>See your ranking on the leaderboard</span>
+    </li>
+  </ul>
+</div>
+
+### For Admins
+
+<div className="my-6">
+  <ul className="space-y-3">
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-blue-500">✓</span>
+      <span>View all submitted bounties in dedicated tab</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-blue-500">✓</span>
+      <span>Review submitted work with direct branch links</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-blue-500">✓</span>
+      <span>
+        Accept bounties with one click (creates PR, merges, awards points)
+      </span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-blue-500">✓</span>
+      <span>Automatic GitHub issue closure</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-blue-500">✓</span>
+      <span>Communicate with contributors via bounty comments</span>
+    </li>
+    <li className="flex items-start gap-3">
+      <span className="mt-1 text-blue-500">✓</span>
+      <span>View all users working on issues</span>
+    </li>
+  </ul>
+</div>
+
+## 🔧 Technical Highlights
+
+<div className="my-6 rounded-lg border border-neutral-200 bg-transparent p-6 text-white dark:border-neutral-800 dark:bg-transparent dark:text-white">
+  <ul className="space-y-2">
+    <li>• Drag-and-drop powered by @hello-pangea/dnd</li>
+    <li>• Real-time updates with Convex</li>
+    <li>• GitHub API integration via Octokit</li>
+    <li>• Automatic conflict detection</li>
+    <li>• Points system with leaderboard tracking</li>
+    <li>• Branch name generation with issue numbers</li>
+    <li>• Pull request automation</li>
+  </ul>
+</div>
+
+## 🎯 Getting Started
+
+### For Contributors
+
+<div className="my-6 rounded-lg border border-neutral-200 bg-transparent p-6 text-white dark:border-neutral-800 dark:bg-transparent dark:text-white">
+  <h3 className="mb-4 text-lg font-semibold">
+    Ready to start earning bounties?
+  </h3>
+  <ol className="space-y-2">
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        1
+      </span>
+      <span>
+        Navigate to{" "}
+        <a
+          href="/dashboard/board"
+          className="text-blue-400 underline hover:text-blue-300"
+        >
+          Dashboard → Board
+        </a>
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        2
+      </span>
+      <span>Browse approved issues in the "Issues" tab</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        3
+      </span>
+      <span>Click "Accept Bounty" on an issue you want to work on</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        4
+      </span>
+      <span>A branch will be created automatically</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        5
+      </span>
+      <span>Work on your solution and push to your branch</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        6
+      </span>
+      <span>Drag the bounty to "Under Review" when ready</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        7
+      </span>
+      <span>Admin reviews and accepts your submission</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        8
+      </span>
+      <span>Earn points and see your rank on the leaderboard!</span>
+    </li>
+  </ol>
+</div>
+
+### For Admins
+
+<div className="my-6 rounded-lg border border-neutral-200 bg-transparent p-6 text-white dark:border-neutral-800 dark:bg-transparent dark:text-white">
+  <h3 className="mb-4 text-lg font-semibold">Ready to manage bounties?</h3>
+  <ol className="space-y-2">
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        1
+      </span>
+      <span>
+        Navigate to{" "}
+        <a
+          href="/dashboard/board/admin"
+          className="text-blue-400 underline hover:text-blue-300"
+        >
+          Dashboard → Board → Admin
+        </a>
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        2
+      </span>
+      <span>Review unapproved issues in "Unapproved" tab</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        3
+      </span>
+      <span>Approve issues with point values</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        4
+      </span>
+      <span>Monitor submitted bounties in "Submitted Bounties" tab</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        5
+      </span>
+      <span>Review code via branch links</span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-sm font-semibold text-white dark:bg-neutral-300 dark:text-neutral-900">
+        6
+      </span>
+      <span>Click "Accept Bounty" to merge and award points</span>
+    </li>
+  </ol>
+</div>
+
+## 🔄 Bounty Workflow
+
+<div className="my-6 rounded-lg border border-neutral-200 bg-transparent p-6 text-white dark:border-neutral-800 dark:bg-transparent dark:text-white">
+  <h3 className="mb-4 text-lg font-semibold">Complete Bounty Lifecycle</h3>
+  <ol className="space-y-2">
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        1
+      </span>
+      <span>
+        <strong>Issue Creation</strong> - Users propose issues for bounties
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        2
+      </span>
+      <span>
+        <strong>Admin Approval</strong> - Admins review and assign point values
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        3
+      </span>
+      <span>
+        <strong>Bounty Acceptance</strong> - Contributors accept bounties
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        4
+      </span>
+      <span>
+        <strong>Development</strong> - Work on the issue in auto-generated
+        branch
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        5
+      </span>
+      <span>
+        <strong>Submission</strong> - Move to "Under Review" status
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        6
+      </span>
+      <span>
+        <strong>Admin Review</strong> - Admin checks the code
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        7
+      </span>
+      <span>
+        <strong>Acceptance</strong> - PR created, merged, points awarded, issue
+        closed
+      </span>
+    </li>
+    <li className="flex items-center gap-3">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+        8
+      </span>
+      <span>
+        <strong>Completion</strong> - Bounty marked complete, other attempts
+        abandoned
+      </span>
+    </li>
+  </ol>
+</div>
+
+## 🎉 Impact
+
+<div className="my-6 rounded-lg border border-neutral-200 bg-transparent p-6 text-white dark:border-neutral-800 dark:bg-transparent dark:text-white">
+  <div className="text-lg leading-relaxed">
+    The Board represents a revolutionary approach to open-source contribution
+    management. By gamifying the development process with points, leaderboards,
+    and automated GitHub workflows, we're creating an engaging ecosystem that
+    rewards quality contributions while streamlining the entire bounty
+    lifecycle. This system empowers contributors to showcase their skills, helps
+    maintainers efficiently manage project improvements, and builds a stronger,
+    more connected developer community.
+  </div>
+</div>
+
+---
+
+<div className="text-muted-foreground mt-8 border-t pt-4 text-sm">
+  <div>
+    Published on <strong>October 25, 2025</strong> • <em>Skill Diggers Team</em>
+  </div>
+</div>
