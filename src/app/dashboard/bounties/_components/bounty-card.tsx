@@ -7,6 +7,7 @@ interface BountyCardProps {
   issueNumber?: number;
   issueUrl?: string;
   branchName: string;
+  status?: string;
   unreadCount?: number;
   onMessageClick?: () => void;
 }
@@ -17,6 +18,7 @@ export function BountyCard({
   issueNumber,
   issueUrl,
   branchName,
+  status,
   unreadCount = 0,
   onMessageClick,
 }: BountyCardProps) {
@@ -42,7 +44,7 @@ export function BountyCard({
           <span className="truncate">{branchName}</span>
         </div>
         <div className="flex items-center gap-1">
-          {onMessageClick && (
+          {onMessageClick && status === "under_review" && (
             <button
               onClick={onMessageClick}
               className="text-muted-foreground hover:text-foreground relative p-1 transition-colors"

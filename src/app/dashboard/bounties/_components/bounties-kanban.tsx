@@ -303,6 +303,7 @@ export function BountiesKanban() {
                                     issueNumber={bounty.issueNumber}
                                     issueUrl={bounty.issueUrl}
                                     branchName={bounty.branchName}
+                                    status={bounty.column}
                                     onMessageClick={() =>
                                       handleMessageClick(bounty)
                                     }
