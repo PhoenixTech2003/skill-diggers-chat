@@ -1,26 +1,61 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { Card } from "~/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { createMeeting } from "~/server/actions";
+import { toast } from "sonner";
 
-export function TichezeHero() {
-  const [meetingId, setMeetingId] = useState("");
+const joinMeetingSchema = z.object({
+  meetingId: z.string().min(1, "Meeting ID is required"),
+});
+
+type JoinMeetingFormValues = z.infer<typeof joinMeetingSchema>;
+
+interface TichezeHeroProps {
+  isAdmin: boolean;
+}
+
+export function TichezeHero({ isAdmin }: TichezeHeroProps) {
+  const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
+  const form = useForm<JoinMeetingFormValues>({
+    resolver: zodResolver(joinMeetingSchema),
+    defaultValues: {
+      meetingId: "",
+    },
+  });
 
-  const handleJoinMeeting = () => {
-    if (meetingId.trim()) {
-      router.push(`/ticheze/${meetingId}`);
-    }
+  const onSubmit = (values: JoinMeetingFormValues) => {
+    router.push(`/ticheze/${values.meetingId}`);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleJoinMeeting();
+  const handleCreateMeeting = async () => {
+    setIsCreating(true);
+    try {
+      toast.promise(createMeeting(), {
+        loading: "Creating meeting...",
+        success: (roomId) => {
+          router.push(`/ticheze/${roomId}`);
+          return `Meeting created successfully`;
+        },
+        error: "Failed to create meeting",
+      });
+    } catch (error) {
+      console.error("Error creating meeting:", error);
     }
   };
 
@@ -82,29 +117,72 @@ export function TichezeHero() {
           </div>
 
           {/* Meeting ID Input */}
-          <Card className="bg-card/95 border-primary/30 mx-auto max-w-md space-y-4 p-8 backdrop-blur">
-            <h3 className="text-foreground text-lg font-semibold">
+          <Card className="bg-card/95 border-primary/30 mx-auto max-w-md p-8 backdrop-blur">
+            <h3 className="text-foreground mb-4 text-lg font-semibold">
               Join a Meeting
             </h3>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Input
-                placeholder="Enter meeting ID"
-                value={meetingId}
-                onChange={(e) => setMeetingId(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-              />
-              <Button
-                onClick={handleJoinMeeting}
-                disabled={!meetingId.trim()}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold whitespace-nowrap"
+
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col gap-3 sm:flex-row"
               >
-                Join
-              </Button>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Enter a meeting ID to join an existing session
-            </p>
+                <FormField
+                  control={form.control}
+                  name="meetingId"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input
+                          placeholder="Enter meeting ID"
+                          className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  disabled={
+                    form.formState.isSubmitting || !form.formState.isValid
+                  }
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground w-full font-semibold whitespace-nowrap sm:w-auto"
+                >
+                  {form.formState.isSubmitting ? "Joining..." : "Join Meeting"}
+                </Button>
+              </form>
+            </Form>
+
+            {isAdmin && (
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="border-border flex-1 border-t" />
+                  <span className="text-muted-foreground text-xs uppercase">
+                    or
+                  </span>
+                  <div className="border-border flex-1 border-t" />
+                </div>
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleCreateMeeting}
+                    disabled={isCreating}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground w-full font-semibold"
+                  >
+                    {isCreating ? "Creating..." : "Create New Meeting"}
+                  </Button>
+                  <p className="text-muted-foreground text-center text-xs">
+                    Create a new meeting room as an admin
+                  </p>
+                </div>
+              </div>
+            )}
+            {!isAdmin && (
+              <p className="text-muted-foreground mt-4 text-sm">
+                Enter a meeting ID to join an existing session
+              </p>
+            )}
           </Card>
         </div>
       </div>
