@@ -18,3 +18,19 @@ export const theBoardFlag = flag({
     return true;
   },
 });
+
+export const tichezeFlag = flag({
+  key: "Ticheze",
+  identify: async () => {
+    const token = await getToken();
+    const sessionData = await fetchQuery(
+      api.users.getLoggedUserSession,
+      {},
+      { token },
+    );
+    return sessionData;
+  },
+  decide({ entities }) {
+    return false;
+  },
+});

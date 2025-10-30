@@ -5,8 +5,12 @@ import { getToken } from "~/lib/auth-server";
 import { TichezeHero } from "./_components/ticheze-hero";
 import { TichezeLoading } from "./_components/loading-skeleton";
 import { redirect } from "next/navigation";
-
+import { tichezeFlag } from "~/flags";
 export default async function TichezePage() {
+  const ticheze = await tichezeFlag();
+  if (!ticheze) {
+    redirect("/dashboard");
+  }
   let isAdmin = false;
   const token = await getToken();
   if (token) {
