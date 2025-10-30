@@ -10,20 +10,14 @@ export default async function BoardPageServer() {
   if (!theBoard) {
     redirect("/dashboard");
   }
-
-  const preloadedIssues = await preloadQuery(
-    api.issues.getOpenAndApprovedIssues,
-    {},
-  );
-
-  const preloadedLeaderboard = await preloadQuery(
-    api.leaderboard.getLeaderboard,
-    {},
-  );
+  const [preloadedUnacceptedIssues, preloadedLeaderboard] = await Promise.all([
+    preloadQuery(api.issues.getUnacceptedForUser, {}),
+    preloadQuery(api.leaderboard.getLeaderboard, {}),
+  ]);
 
   return (
     <BoardPageClient
-      preloadedIssues={preloadedIssues}
+      preloadedUnacceptedIssues={preloadedUnacceptedIssues}
       preloadedLeaderboard={preloadedLeaderboard}
     />
   );

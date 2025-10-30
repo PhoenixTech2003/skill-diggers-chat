@@ -36,16 +36,18 @@ const getDifficultyColor = (points: number) => {
 };
 
 export function IssuesTab({
-  preloadedIssues,
+  preloadedUnacceptedIssues,
 }: {
-  preloadedIssues: Preloaded<typeof api.issues.getOpenAndApprovedIssues>;
+  preloadedUnacceptedIssues: Preloaded<typeof api.issues.getUnacceptedForUser>;
 }) {
-  const { issuesData, issuesDataError } = usePreloadedQuery(preloadedIssues);
-  const unaccepted = useQuery(api.issues.getUnacceptedForUser, {});
+  // Only fetch unaccepted issues for the current user
+  const unacceptedResult = usePreloadedQuery(preloadedUnacceptedIssues);
   const acceptBounty = useAction(api.issues.acceptBountyAndCreateBranch);
   const [dialogIssue, setDialogIssue] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showUnaccepted, setShowUnaccepted] = useState(false);
+
+  const issuesData = unacceptedResult?.issuesData;
+  const issuesDataError = unacceptedResult?.issuesDataError;
 
   if (issuesDataError) {
     return (
@@ -82,7 +84,7 @@ export function IssuesTab({
     );
   }
 
-  const list = showUnaccepted ? unaccepted?.issuesData : issuesData;
+  const list = issuesData;
 
   return (
     <div className="space-y-4">
@@ -90,9 +92,8 @@ export function IssuesTab({
         <CardHeader>
           <CardTitle>Available Bounties</CardTitle>
           <CardDescription>
-            {showUnaccepted
-              ? "Issues you have not accepted yet"
-              : "Accept a bounty and start earning points by solving issues"}
+            Accept a bounty and start earning points by solving issues. Only
+            showing issues you haven't accepted yet.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -205,7 +206,6 @@ export function IssuesTab({
                   });
                   toast.success(`Branch created: ${result.branchName}`);
                   setDialogIssue(null);
-                  setShowUnaccepted(true);
                 } catch (e: any) {
                   toast.error(e?.message ?? "Failed to accept bounty");
                 } finally {
