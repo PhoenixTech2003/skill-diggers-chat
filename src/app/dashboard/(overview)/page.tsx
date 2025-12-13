@@ -6,6 +6,8 @@ import { api } from "../../../../convex/_generated/api";
 import { getToken } from "~/lib/auth-server";
 import { redirect } from "next/navigation";
 
+
+
 export default async function DashboardPage() {
   const token = await getToken();
   const { sessionData, sessionDataError } = await fetchQuery(

@@ -7,7 +7,6 @@ import { fetchQuery } from "convex/nextjs";
 import { api } from "../../../convex/_generated/api";
 import { redirect } from "next/navigation";
 import { theBoardFlag } from "~/flags";
-
 export default async function DashboardLayout({
   children,
 }: {

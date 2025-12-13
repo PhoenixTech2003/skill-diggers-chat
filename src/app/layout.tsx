@@ -3,7 +3,6 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "~/components/ui/sonner";
 import { ConvexClientProvider } from "./convex-client-provider";
-
 export const metadata: Metadata = {
   title: "Skill Diggers",
   description:
@@ -22,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <ConvexClientProvider> {children}</ConvexClientProvider>
+        
+          <ConvexClientProvider> {children}</ConvexClientProvider>
+      
         <Toaster richColors position="top-center" />
       </body>
     </html>
