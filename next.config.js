@@ -7,7 +7,8 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-    pageExtensions:["js","jsx","ts","tsx","md","mdx"]
+    pageExtensions:["js","jsx","ts","tsx","md","mdx"],
+     // Enable Partial Pre-Rendering (PPR) in Next.js 16
 };
 const withMDX = createMDX({
     // Add markdown plugins here, as desired
