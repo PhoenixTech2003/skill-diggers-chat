@@ -3,16 +3,28 @@
 import { env } from "~/env";
 
 // API call to create a meeting
-export const createMeeting = async () => {
-  console.log(env.VIDEO_SDK_API_KEY);
+export const createMeeting = async (region?: string) => {
+  const tokenRes = await fetch(`${env.BASE_URL}/api/video-sdk/get-token`, {
+    method: "GET",
+    // Avoid any caching surprises for auth-like values
+    cache: "no-store",
+  });
+  if (!tokenRes.ok) {
+    throw new Error("Failed to get token");
+  }
+  const tokenData: { token?: string } = await tokenRes.json();
+  if (!tokenData.token) {
+    throw new Error("Token is required");
+  }
   try {
-    const res = await fetch(`https://api.videosdk.live/v2/rooms`, {
+    const res = await fetch("https://api.videosdk.live/v2/rooms", {
       method: "POST",
       headers: {
-        authorization: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiJhNWM1OGU5Zi01ZWNkLTQ5MDktOGUwNC1lZGM5NmU3Zjc3NWQiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTc2MTU0Mzg2NiwiZXhwIjoxNzYyMTQ4NjY2fQ.0IlBvInQNTolKBfZdRN0dNVIm4-hBeYtnF4vIpfyMLg`,
+        // VideoSDK expects the JWT as the Authorization header value
+        Authorization: tokenData.token,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify(region ? { region } : {}),
     });
 
     if (!res.ok) {

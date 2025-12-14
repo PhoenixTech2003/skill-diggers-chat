@@ -31,6 +31,6 @@ export const tichezeFlag = flag({
     return sessionData;
   },
   decide({ entities }) {
-    return false;
+    return true;
   },
 });

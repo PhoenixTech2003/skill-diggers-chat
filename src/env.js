@@ -8,6 +8,8 @@ export const env = createEnv({
    */
   server: {
     VIDEO_SDK_API_KEY: z.string(),
+    VIDEO_SDK_API_SECRET: z.string(),
+    BASE_URL: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -28,6 +30,8 @@ export const env = createEnv({
    */
   runtimeEnv: {
     VIDEO_SDK_API_KEY: process.env.VIDEO_SDK_API_KEY,
+    VIDEO_SDK_API_SECRET: process.env.VIDEO_SDK_API_SECRET,
+    BASE_URL: process.env.BASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   },

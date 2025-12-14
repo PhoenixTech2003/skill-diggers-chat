@@ -1,8 +1,16 @@
 "use client";
 import { MeetingProvider } from "@videosdk.live/react-sdk";
 import { redirect, useParams } from "next/navigation";
-import { env } from "~/env";
 import { authClient } from "~/lib/auth-client";
+import { useEffect, useState } from "react";
+
+async function getVideoSdkToken() {
+  const res = await fetch("/api/video-sdk/get-token", { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to get VideoSDK token");
+  const data: { token?: string } = await res.json();
+  if (!data.token) throw new Error("VideoSDK token missing");
+  return data.token;
+}
 export default function MeetingLayout({
   children,
 }: {
@@ -14,6 +22,50 @@ export default function MeetingLayout({
     redirect("/auth/login");
   }
   const name = user.data?.user.name;
+
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const t = await getVideoSdkToken();
+        if (!cancelled) setToken(t);
+      } catch (e) {
+        if (!cancelled) {
+          setTokenError(e instanceof Error ? e.message : "Failed to get token");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!meetingId) {
+    return null;
+  }
+
+  if (tokenError) {
+    return (
+      <div className="mx-auto flex w-full max-w-xl flex-col gap-3 p-6">
+        <h1 className="text-xl font-semibold">Unable to join meeting</h1>
+        <p className="text-muted-foreground text-sm">{tokenError}</p>
+      </div>
+    );
+  }
+
+  if (!token) {
+    return (
+      <div className="mx-auto flex w-full max-w-xl flex-col gap-3 p-6">
+        <h1 className="text-xl font-semibold">Preparing meeting…</h1>
+        <p className="text-muted-foreground text-sm">
+          Fetching secure VideoSDK token.
+        </p>
+      </div>
+    );
+  }
   return (
     <MeetingProvider
       config={{
@@ -23,9 +75,7 @@ export default function MeetingLayout({
         name,
         debugMode: true,
       }}
-      token={
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiJhNWM1OGU5Zi01ZWNkLTQ5MDktOGUwNC1lZGM5NmU3Zjc3NWQiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTc2MTU0Mzg2NiwiZXhwIjoxNzYyMTQ4NjY2fQ.0IlBvInQNTolKBfZdRN0dNVIm4-hBeYtnF4vIpfyMLg"
-      }
+      token={token}
     >
       {children}
     </MeetingProvider>
