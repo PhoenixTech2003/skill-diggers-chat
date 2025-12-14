@@ -10,12 +10,12 @@ import { IssuesTab } from "./issues-tab";
 import { CreateIssueButton } from "./create-issue-button";
 
 interface BoardPageClientProps {
-  preloadedIssues: Preloaded<typeof api.issues.getOpenAndApprovedIssues>;
+  preloadedUnacceptedIssues: Preloaded<typeof api.issues.getUnacceptedForUser>;
   preloadedLeaderboard: Preloaded<typeof api.leaderboard.getLeaderboard>;
 }
 
 export function BoardPageClient({
-  preloadedIssues,
+  preloadedUnacceptedIssues,
   preloadedLeaderboard,
 }: BoardPageClientProps) {
   const [activeTab, setActiveTab] = useState("leaderboard");
@@ -23,7 +23,7 @@ export function BoardPageClient({
 
   useEffect(() => {
     enrollUser({}).catch(console.error);
-  });
+  }, [enrollUser]);
 
   return (
     <div className="space-y-4">
@@ -45,7 +45,7 @@ export function BoardPageClient({
           <LeaderboardTab preloadedLeaderboard={preloadedLeaderboard} />
         </TabsContent>
         <TabsContent value="issues" className="space-y-4">
-          <IssuesTab preloadedIssues={preloadedIssues} />
+          <IssuesTab preloadedUnacceptedIssues={preloadedUnacceptedIssues} />
         </TabsContent>
       </Tabs>
     </div>
