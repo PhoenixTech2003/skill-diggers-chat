@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import { Input } from "~/components/ui/input"
+import { Button } from "~/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { HackathonCard } from "./hackathon-card"
+import { Plus } from "lucide-react"
 
 // Mock data for hackathons
 const hackathons = [
@@ -123,11 +125,15 @@ export function HackathonsInterface() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-balance">Hackathons</h1>
           <p className="text-muted-foreground">Discover and join exciting coding competitions</p>
         </div>
+        <Button className="w-full sm:w-auto">
+          <Plus className="h-4 w-4 mr-2" />
+          Create Hackathon
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4">
