@@ -90,4 +90,84 @@ export default defineSchema({
   })
     .index("by_comment_user", ["commentId", "userId"])
     .index("by_user", ["userId"]),
+  hackathons: defineTable({
+    title: v.string(),
+    description: v.string(),
+    fullDescription: v.string(),
+    registrationStart: v.string(), // ISO date string
+    registrationEnd: v.string(), // ISO date string
+    hackathonStart: v.string(), // ISO date string
+    hackathonEnd: v.string(), // ISO date string
+    location: v.union(v.literal("virtual"), v.literal("in-person"), v.literal("hybrid")),
+    maxParticipants: v.number(),
+    prize: v.string(), // e.g., "$10,000" or "5,000 points"
+    prizeType: v.union(v.literal("cash"), v.literal("points")),
+    status: v.union(
+      v.literal("open"),
+      v.literal("upcoming"),
+      v.literal("in-progress"),
+      v.literal("completed"),
+      v.literal("closed"),
+    ),
+    requireLinkedIn: v.boolean(),
+    linkedInPostsRequired: v.optional(v.number()),
+    allowTeams: v.boolean(),
+    rules: v.array(v.string()),
+    prizes: v.array(
+      v.object({
+        place: v.string(),
+        amount: v.string(),
+      }),
+    ),
+    schedule: v.array(
+      v.object({
+        time: v.string(),
+        event: v.string(),
+      }),
+    ),
+    createdBy: v.string(), // userId
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_created_by", ["createdBy"])
+    .index("by_registration_period", ["registrationStart", "registrationEnd"])
+    .index("by_event_period", ["hackathonStart", "hackathonEnd"]),
+  hackathonRegistrations: defineTable({
+    hackathonId: v.id("hackathons"),
+    userId: v.string(),
+    registrationType: v.union(v.literal("individual"), v.literal("team")),
+    teamName: v.optional(v.string()),
+    registeredAt: v.number(),
+  })
+    .index("by_hackathon", ["hackathonId"])
+    .index("by_user", ["userId"])
+    .index("by_hackathon_user", ["hackathonId", "userId"]),
+  hackathonTeamMembers: defineTable({
+    registrationId: v.id("hackathonRegistrations"),
+    userId: v.string(), // Email or userId of team member
+    addedAt: v.number(),
+  })
+    .index("by_registration", ["registrationId"])
+    .index("by_user", ["userId"]),
+  hackathonSubmissions: defineTable({
+    hackathonId: v.id("hackathons"),
+    registrationId: v.id("hackathonRegistrations"),
+    liveLink: v.string(),
+    githubLink: v.string(),
+    linkedInPosts: v.array(v.string()),
+    submittedAt: v.number(),
+    position: v.optional(
+      v.union(
+        v.literal("1st Place"),
+        v.literal("2nd Place"),
+        v.literal("3rd Place"),
+        v.literal("Honorable Mention"),
+      ),
+    ),
+    resultsPublished: v.optional(v.boolean()),
+  })
+    .index("by_hackathon", ["hackathonId"])
+    .index("by_registration", ["registrationId"])
+    .index("by_position", ["position"]),
 });
