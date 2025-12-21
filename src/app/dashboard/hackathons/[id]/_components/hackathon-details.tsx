@@ -624,7 +624,7 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
                 <CardTitle>Admin Actions</CardTitle>
               </CardHeader>
               <CardContent>
-                <Link href={`/dashboard/admin/hackathons/${hackathonId}/submissions`}>
+                <Link href={`/dashboard/hackathons/${hackathonId}/submissions`}>
                   <Button className="w-full" size="lg">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     View Submissions
