@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
   Trophy,
+  Brain,
 } from "lucide-react";
 import {
   Sidebar,
@@ -152,6 +153,17 @@ export function AppSidebar({
                         <Link href="/dashboard/board">
                           <Trophy className="h-4 w-4" />
                           <span>The Board</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/dashboard/hackathons"}
+                      >
+                        <Link href="/dashboard/hackathons">
+                          <Brain className="h-4 w-4" />
+                          <span>Hackathons</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
