@@ -6,6 +6,25 @@ export default defineSchema({
     name: v.string(),
     createdBy: v.string(),
   }),
+  videoRoom: defineTable({
+    videosdkRoomId: v.string(),
+    title: v.string(),
+    createdBy: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_videosdk_room_id", ["videosdkRoomId"])
+    .index("by_created_by", ["createdBy"]),
+  videoParticipant: defineTable({
+    videosdkRoomId: v.string(),
+    userId: v.string(),
+    status: v.union(v.literal("ACTIVE"), v.literal("LEFT")),
+    joinedAt: v.number(),
+    lastActiveAt: v.number(),
+    leftAt: v.optional(v.number()),
+  })
+    .index("by_room_user", ["videosdkRoomId", "userId"])
+    .index("by_room", ["videosdkRoomId"])
+    .index("by_user", ["userId"]),
   roomMember: defineTable({
     roomId: v.id("room"),
     userId: v.string(),

@@ -2,6 +2,8 @@
 
 import { Button } from "~/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
 
 interface MeetingHeaderProps {
   meetingId: string;
@@ -9,6 +11,10 @@ interface MeetingHeaderProps {
 
 export function MeetingHeader({ meetingId }: MeetingHeaderProps) {
   const router = useRouter();
+  const videoRoom = useQuery(api.videoRooms.getVideoRoomByVideoSdkId, {
+    videosdkRoomId: meetingId,
+  });
+  const title = videoRoom?.title ?? "Ticheze Meeting";
 
   return (
     <div className="bg-card border-border flex items-center justify-between border-b px-6 py-4">
@@ -21,8 +27,8 @@ export function MeetingHeader({ meetingId }: MeetingHeaderProps) {
           ← Back
         </Button>
         <div>
-          <h1 className="text-foreground text-xl font-bold">Ticheze Meeting</h1>
-          <p className="text-muted-foreground text-sm">ID: {meetingId}</p>
+          <h1 className="text-foreground text-xl font-bold">{title}</h1>
+          <p className="text-muted-foreground text-sm">Meeting ID: {meetingId}</p>
         </div>
       </div>
 

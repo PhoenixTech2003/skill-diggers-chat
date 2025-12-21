@@ -9,6 +9,14 @@ import * as z from "zod";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -18,6 +26,8 @@ import {
 import { Input } from "~/components/ui/input";
 import { createMeeting } from "~/server/actions";
 import { toast } from "sonner";
+import { api } from "../../../../convex/_generated/api";
+import { useMutation } from "convex/react";
 
 const joinMeetingSchema = z.object({
   meetingId: z.string().min(1, "Meeting ID is required"),
@@ -31,31 +41,63 @@ interface TichezeHeroProps {
 
 export function TichezeHero({ isAdmin }: TichezeHeroProps) {
   const [isCreating, setIsCreating] = useState(false);
+  const [meetingTitle, setMeetingTitle] = useState("");
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareLink, setShareLink] = useState<string>("");
+
+  const createVideoRoom = useMutation(api.videoRooms.createVideoRoom);
+  const upsertVideoParticipantActive = useMutation(
+    api.videoRooms.upsertVideoParticipantActive,
+  );
+
   const router = useRouter();
   const form = useForm<JoinMeetingFormValues>({
     resolver: zodResolver(joinMeetingSchema),
     defaultValues: {
       meetingId: "",
     },
+    mode: "onChange",
   });
 
-  const onSubmit = (values: JoinMeetingFormValues) => {
-    router.push(`/ticheze/${values.meetingId}`);
+  const onSubmit = async (values: JoinMeetingFormValues) => {
+    const meetingId = values.meetingId.trim();
+    await toast.promise(
+      upsertVideoParticipantActive({ videosdkRoomId: meetingId }),
+      {
+        loading: "Preparing meeting...",
+        success: "Joining meeting…",
+        error: "Failed to join meeting",
+      },
+    );
+    router.push(`/ticheze/${meetingId}`);
   };
 
   const handleCreateMeeting = async () => {
     setIsCreating(true);
     try {
-      toast.promise(createMeeting(), {
-        loading: "Creating meeting...",
-        success: (roomId) => {
-          router.push(`/ticheze/${roomId}`);
-          return `Meeting created successfully`;
+      await toast.promise(
+        (async () => {
+          const roomId = await createMeeting();
+          await createVideoRoom({
+            videosdkRoomId: roomId,
+            title: meetingTitle.trim() || "Ticheze meeting",
+          });
+
+          const link = `${window.location.origin}/ticheze/${roomId}`;
+          setShareLink(link);
+          setShareOpen(true);
+          return roomId;
+        })(),
+        {
+          loading: "Creating meeting...",
+          success: () => "Meeting created",
+          error: "Failed to create meeting",
         },
-        error: "Failed to create meeting",
-      });
+      );
     } catch (error) {
       console.error("Error creating meeting:", error);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -165,6 +207,12 @@ export function TichezeHero({ isAdmin }: TichezeHeroProps) {
                   <div className="border-border flex-1 border-t" />
                 </div>
                 <div className="space-y-2">
+                  <Input
+                    value={meetingTitle}
+                    onChange={(e) => setMeetingTitle(e.target.value)}
+                    placeholder="Meeting title (optional)"
+                    className="bg-input border-border text-foreground placeholder:text-muted-foreground"
+                  />
                   <Button
                     onClick={handleCreateMeeting}
                     disabled={isCreating}
@@ -184,6 +232,39 @@ export function TichezeHero({ isAdmin }: TichezeHeroProps) {
               </p>
             )}
           </Card>
+
+          <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Meeting ready</DialogTitle>
+                <DialogDescription>
+                  Share this link to invite participants.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2">
+                <Input value={shareLink} readOnly />
+                <Button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(shareLink);
+                      toast.success("Link copied");
+                    } catch {
+                      toast.error("Failed to copy link");
+                    }
+                  }}
+                  disabled={!shareLink}
+                >
+                  Copy
+                </Button>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setShareOpen(false)}>
+                  Close
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
