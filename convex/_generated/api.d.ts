@@ -18,6 +18,7 @@ import type * as bounties from "../bounties.js";
 import type * as bountyAcceptance from "../bountyAcceptance.js";
 import type * as bountyComments from "../bountyComments.js";
 import type * as dashboard from "../dashboard.js";
+import type * as hackathon from "../hackathon.js";
 import type * as http from "../http.js";
 import type * as issues from "../issues.js";
 import type * as leaderboard from "../leaderboard.js";
@@ -52,6 +53,7 @@ declare const fullApi: ApiFromModules<{
   bountyAcceptance: typeof bountyAcceptance;
   bountyComments: typeof bountyComments;
   dashboard: typeof dashboard;
+  hackathon: typeof hackathon;
   http: typeof http;
   issues: typeof issues;
   leaderboard: typeof leaderboard;

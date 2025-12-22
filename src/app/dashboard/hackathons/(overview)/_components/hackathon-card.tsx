@@ -7,7 +7,7 @@ import { Badge } from "~/components/ui/badge"
 import { Calendar, Users, Clock, MapPin } from "lucide-react"
 
 interface Hackathon {
-  id: number
+  id: string
   title: string
   description: string
   registrationStart: string

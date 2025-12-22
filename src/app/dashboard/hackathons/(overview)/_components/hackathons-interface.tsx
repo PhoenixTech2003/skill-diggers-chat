@@ -4,100 +4,36 @@ import { useState } from "react"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
+import { Card, CardContent } from "~/components/ui/card"
 import { HackathonCard } from "./hackathon-card"
 import { Plus } from "lucide-react"
-
-// Mock data for hackathons
-const hackathons = [
-  {
-    id: 1,
-    title: "AI Innovation Challenge 2024",
-    description: "Build the next generation of AI-powered applications using cutting-edge machine learning models.",
-    registrationStart: "2024-02-01",
-    registrationEnd: "2024-02-28",
-    hackathonStart: "2024-03-01",
-    hackathonEnd: "2024-03-03",
-    participants: 245,
-    maxParticipants: 500,
-    status: "open",
-    location: "Virtual",
-    prize: "$10,000",
-  },
-  {
-    id: 2,
-    title: "Web3 Builders Summit",
-    description: "Create decentralized applications and explore the future of the internet with blockchain technology.",
-    registrationStart: "2024-01-15",
-    registrationEnd: "2024-02-15",
-    hackathonStart: "2024-02-20",
-    hackathonEnd: "2024-02-22",
-    participants: 180,
-    maxParticipants: 300,
-    status: "in-progress",
-    location: "Hybrid",
-    prize: "$5,000",
-    requiresLinkedInPosts: true,
-    linkedInPostsRequired: 3,
-  },
-  {
-    id: 3,
-    title: "Game Dev Jam",
-    description: "48 hours to create an amazing game from scratch. Show off your creativity and technical skills.",
-    registrationStart: "2024-01-01",
-    registrationEnd: "2024-01-20",
-    hackathonStart: "2024-01-25",
-    hackathonEnd: "2024-01-27",
-    participants: 150,
-    maxParticipants: 150,
-    status: "completed",
-    location: "In-Person",
-    prize: "5,000 points",
-    prizeType: "points",
-    winners: [
-      {
-        place: "1st Place",
-        teamName: "Pixel Pioneers",
-        members: ["Sarah Johnson", "Mike Chen", "Emily Davis"],
-        prize: "2,500 points",
-        projectName: "Quantum Quest",
-      },
-      {
-        place: "2nd Place",
-        teamName: "Code Crafters",
-        members: ["Alex Thompson", "Jordan Lee"],
-        prize: "1,500 points",
-        projectName: "Shadow Realm",
-      },
-      {
-        place: "3rd Place",
-        teamName: "Bug Busters",
-        members: ["Chris Martinez"],
-        prize: "1,000 points",
-        projectName: "Pixel Paradise",
-      },
-    ],
-  },
-  {
-    id: 4,
-    title: "Mobile App Marathon",
-    description: "Design and develop innovative mobile applications that solve real-world problems.",
-    registrationStart: "2024-03-01",
-    registrationEnd: "2024-03-20",
-    hackathonStart: "2024-03-25",
-    hackathonEnd: "2024-03-27",
-    participants: 0,
-    maxParticipants: 400,
-    status: "upcoming",
-    location: "Virtual",
-    prize: "$8,000",
-  },
-]
+import { usePaginatedQuery } from "convex/react";
+import { api } from "../../../../../../convex/_generated/api";
 
 export function HackathonsInterface() {
+  const {results, status, loadMore} = usePaginatedQuery(api.hackathon.getHackathons,{},{initialNumItems:5})
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
 
-  const filteredHackathons = hackathons.filter((hackathon) => {
+  // Transform database results to match HackathonCard interface
+  const transformedHackathons = (results ?? []).map((hackathon) => ({
+    id: hackathon._id as string,
+    title: hackathon.title,
+    description: hackathon.description,
+    registrationStart: hackathon.registrationStart,
+    registrationEnd: hackathon.registrationEnd,
+    hackathonStart: hackathon.hackathonStart,
+    hackathonEnd: hackathon.hackathonEnd,
+    participants: 0, // TODO: Calculate from registrations
+    maxParticipants: hackathon.maxParticipants,
+    status: hackathon.status,
+    location: hackathon.location,
+    prize: hackathon.prize,
+    requiresLinkedInPosts: hackathon.requireLinkedIn,
+    linkedInPostsRequired: hackathon.linkedInPostsRequired,
+  }))
+
+  const filteredHackathons = transformedHackathons.filter((hackathon) => {
     const matchesSearch =
       hackathon.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       hackathon.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -155,11 +91,26 @@ export function HackathonsInterface() {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              {filteredHackathons.map((hackathon) => (
-                <HackathonCard key={hackathon.id} hackathon={hackathon} getStatusColor={getStatusColor} />
-              ))}
-            </div>
+            {filteredHackathons.length === 0 ? (
+              <Card>
+                <CardContent className="py-12">
+                  <div className="text-center space-y-2">
+                    <p className="text-lg font-medium">No hackathons available</p>
+                    <p className="text-sm text-muted-foreground">
+                      {searchQuery || activeTab !== "all"
+                        ? "Try adjusting your search or filter criteria"
+                        : "There are no hackathons available at the moment. Check back later!"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2">
+                {filteredHackathons.map((hackathon) => (
+                  <HackathonCard key={hackathon.id} hackathon={hackathon} getStatusColor={getStatusColor} />
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
