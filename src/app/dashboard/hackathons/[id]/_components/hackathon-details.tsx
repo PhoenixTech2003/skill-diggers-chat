@@ -1,6 +1,10 @@
 "use client"
 import { Button } from "~/components/ui/button"
 import { useState } from "react"
+import { usePreloadedQuery, useMutation } from "convex/react"
+import { type Preloaded } from "convex/react"
+import { api } from "../../../../../../convex/_generated/api"
+import { toast } from "sonner"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { Badge } from "~/components/ui/badge"
@@ -34,7 +38,13 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 
-const addToGoogleCalendar = (hackathon: any) => {
+const addToGoogleCalendar = (hackathon: {
+  title: string
+  hackathonStart: string
+  hackathonEnd: string
+  fullDescription: string
+  location: string
+}) => {
   const startDate = new Date(hackathon.hackathonStart).toISOString().replace(/-|:|\.\d\d\d/g, "")
   const endDate = new Date(hackathon.hackathonEnd).toISOString().replace(/-|:|\.\d\d\d/g, "")
   const details = hackathon.fullDescription.slice(0, 200)
@@ -42,151 +52,14 @@ const addToGoogleCalendar = (hackathon: any) => {
   window.open(url, "_blank")
 }
 
-// Mock data
-const hackathonsData = [
-  {
-    id: 1,
-    title: "AI Innovation Challenge 2024",
-    description: "Build the next generation of AI-powered applications using cutting-edge machine learning models.",
-    fullDescription:
-      "Join us for the AI Innovation Challenge 2024, where developers, data scientists, and AI enthusiasts come together to push the boundaries of artificial intelligence. This hackathon challenges you to create innovative AI-powered applications that solve real-world problems. Whether you're interested in natural language processing, computer vision, or predictive analytics, this is your opportunity to showcase your skills and creativity.\n\nParticipants will have access to cloud computing resources, pre-trained models, and mentorship from industry experts. Form teams or work solo to build something amazing!",
-    registrationStart: "2024-02-01",
-    registrationEnd: "2024-02-28",
-    hackathonStart: "2024-03-01",
-    hackathonEnd: "2024-03-03",
-    participants: 245,
-    maxParticipants: 500,
-    status: "open",
-    location: "Virtual",
-    prize: "$10,000",
-    rules: [
-      "Teams of 1-4 members are allowed",
-      "All code must be written during the hackathon period",
-      "Open source libraries and frameworks are permitted",
-      "Final submissions must include source code and a demo video",
-      "Projects will be judged on innovation, technical complexity, and presentation",
-    ],
-    prizes: [
-      { place: "1st Place", amount: "$5,000" },
-      { place: "2nd Place", amount: "$3,000" },
-      { place: "3rd Place", amount: "$2,000" },
-    ],
-    schedule: [
-      { time: "March 1, 9:00 AM", event: "Opening Ceremony & Kickoff" },
-      { time: "March 1, 10:00 AM", event: "Hacking Begins" },
-      { time: "March 2, 2:00 PM", event: "Mentor Check-in Session" },
-      { time: "March 3, 6:00 PM", event: "Submissions Due" },
-      { time: "March 3, 7:00 PM", event: "Presentations & Judging" },
-      { time: "March 3, 9:00 PM", event: "Winner Announcement" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Web3 Builders Summit",
-    description: "Create decentralized applications and explore the future of the internet with blockchain technology.",
-    fullDescription:
-      "The Web3 Builders Summit brings together blockchain developers and crypto enthusiasts to build the decentralized future. Explore smart contracts, DeFi protocols, NFT platforms, and DAOs in this intensive hackathon experience.",
-    registrationStart: "2024-01-15",
-    registrationEnd: "2024-02-15",
-    hackathonStart: "2024-02-20",
-    hackathonEnd: "2024-02-22",
-    participants: 180,
-    maxParticipants: 300,
-    status: "in-progress",
-    location: "Hybrid",
-    prize: "$5,000",
-    requiresLinkedInPosts: true,
-    linkedInPostsRequired: 3,
-    rules: [
-      "Must use blockchain technology",
-      "Solo or team participation welcome",
-      "Open source submission required",
-      "Live demo required for final presentation",
-      "Submit 3 LinkedIn posts about your progress",
-    ],
-    prizes: [
-      { place: "1st Place", amount: "$3,000" },
-      { place: "2nd Place", amount: "$2,000" },
-    ],
-    schedule: [
-      { time: "Feb 20, 10:00 AM", event: "Opening & Team Formation" },
-      { time: "Feb 20, 11:00 AM", event: "Start Building" },
-      { time: "Feb 22, 5:00 PM", event: "Final Submissions" },
-      { time: "Feb 22, 7:00 PM", event: "Awards Ceremony" },
-    ],
-  },
-  {
-    id: 3,
-    title: "Game Dev Jam",
-    description: "48 hours to create an amazing game from scratch. Show off your creativity and technical skills.",
-    fullDescription:
-      "The Game Dev Jam is an intensive 48-hour game development competition where creativity meets coding. Whether you're a seasoned game developer or just starting out, this is your chance to create something amazing from scratch. Participants can work solo or in teams to design, develop, and polish a complete game within the time limit.",
-    registrationStart: "2024-01-01",
-    registrationEnd: "2024-01-20",
-    hackathonStart: "2024-01-25",
-    hackathonEnd: "2024-01-27",
-    participants: 150,
-    maxParticipants: 150,
-    status: "completed",
-    location: "In-Person",
-    prize: "5,000 points",
-    prizeType: "points",
-    rules: [
-      "Games must be built during the 48-hour period",
-      "All game assets must be original or properly licensed",
-      "Any game engine or framework is allowed",
-      "Teams of up to 4 members permitted",
-      "Must include a playable demo",
-    ],
-    prizes: [
-      { place: "1st Place", amount: "2,500 points" },
-      { place: "2nd Place", amount: "1,500 points" },
-      { place: "3rd Place", amount: "1,000 points" },
-    ],
-    schedule: [
-      { time: "Jan 25, 9:00 AM", event: "Registration & Setup" },
-      { time: "Jan 25, 10:00 AM", event: "Jam Begins" },
-      { time: "Jan 26, 2:00 PM", event: "Midpoint Check-in" },
-      { time: "Jan 27, 10:00 AM", event: "Submissions Close" },
-      { time: "Jan 27, 11:00 AM", event: "Judging & Demos" },
-      { time: "Jan 27, 4:00 PM", event: "Winners Announced" },
-    ],
-    winners: [
-      {
-        place: "1st Place",
-        teamName: "Pixel Pioneers",
-        members: ["Sarah Johnson", "Mike Chen", "Emily Davis"],
-        prize: "2,500 points",
-        projectName: "Quantum Quest",
-      },
-      {
-        place: "2nd Place",
-        teamName: "Code Crafters",
-        members: ["Alex Thompson", "Jordan Lee"],
-        prize: "1,500 points",
-        projectName: "Shadow Realm",
-      },
-      {
-        place: "3rd Place",
-        teamName: "Bug Busters",
-        members: ["Chris Martinez"],
-        prize: "1,000 points",
-        projectName: "Pixel Paradise",
-      },
-    ],
-    allowTeams: true,
-  },
-]
-
 interface HackathonDetailsProps {
-  hackathonId: string
+  preloadedHackathon: Preloaded<typeof api.hackathon.getHackathonById>
+  isAdmin: boolean
 }
 
-export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
-  const hackathon = hackathonsData.find((h) => h.id === Number.parseInt(hackathonId))
-  const currentUserId = "user123"
-  const isWinner = false // Set to false to show participant certificate card
-  const isAdmin = true // In real app, this would check user role
+export function HackathonDetails({ preloadedHackathon, isAdmin }: HackathonDetailsProps) {
+  const hackathonData = usePreloadedQuery(preloadedHackathon)
+  const registerForHackathonMutation = useMutation(api.hackathon.registerForHackathon)
 
   const [showRegistrationDialog, setShowRegistrationDialog] = useState(false)
   const [registrationType, setRegistrationType] = useState<"individual" | "team">("individual")
@@ -194,7 +67,7 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
   const [teamMembers, setTeamMembers] = useState<string[]>([""])
   const [isRegistering, setIsRegistering] = useState(false)
 
-  if (!hackathon) {
+  if (!hackathonData || !hackathonData._id) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center p-6">
         <div className="text-center space-y-4">
@@ -205,11 +78,20 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
     )
   }
 
+  const hackathon = hackathonData
+  const isRegistered = hackathonData.isRegistered ?? false
+  const isWinner = false // TODO: Check if user is a winner from submissions
+
   const isRegistrationOpen = hackathon.status === "open"
   const isInProgress = hackathon.status === "in-progress"
   const isCompleted = hackathon.status === "completed"
   const registrationEndDate = new Date(hackathon.registrationEnd)
   const hackathonEndDate = new Date(hackathon.hackathonEnd)
+  
+  // Ensure dates are valid for countdown
+  const now = new Date()
+  const showRegistrationCountdown = isRegistrationOpen && registrationEndDate > now
+  const showHackathonCountdown = isInProgress && hackathonEndDate > now
 
   const downloadCertificate = (type: "winner" | "participant", place?: string) => {
     console.log(`Downloading ${type} certificate${place ? ` for ${place}` : ""}`)
@@ -224,23 +106,33 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
   }
 
   const handleRegistration = async () => {
+    if (!hackathon) return
+
     setIsRegistering(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      const teamMembersList = registrationType === "team" 
+        ? teamMembers.filter((m) => m.trim() !== "") 
+        : undefined
 
-    console.log("Registration data:", {
-      hackathonId,
-      type: registrationType,
-      teamName: registrationType === "team" ? teamName : undefined,
-      teamMembers: registrationType === "team" ? teamMembers.filter((m) => m.trim() !== "") : undefined,
-    })
+      await registerForHackathonMutation({
+        hackathonId: hackathon._id,
+        registrationType,
+        teamName: registrationType === "team" && teamName ? teamName : undefined,
+        teamMembers: teamMembersList,
+      })
 
-    setIsRegistering(false)
-    setShowRegistrationDialog(false)
-    // Reset form
-    setRegistrationType("individual")
-    setTeamName("")
-    setTeamMembers([""])
+      toast.success("Successfully registered for the hackathon!")
+      setShowRegistrationDialog(false)
+      // Reset form
+      setRegistrationType("individual")
+      setTeamName("")
+      setTeamMembers([""])
+    } catch (error) {
+      console.error("Registration error:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to register. Please try again.")
+    } finally {
+      setIsRegistering(false)
+    }
   }
 
   const addTeamMember = () => {
@@ -283,8 +175,12 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
           <p className="text-muted-foreground text-lg">{hackathon.description}</p>
         </div>
 
-        {isRegistrationOpen && <CountdownClock targetDate={registrationEndDate} label="Registration Ends In" />}
-        {isInProgress && <CountdownClock targetDate={hackathonEndDate} label="Hackathon Ends In" />}
+        {showRegistrationCountdown && (
+          <CountdownClock targetDate={registrationEndDate} label="Registration Ends In" />
+        )}
+        {showHackathonCountdown && (
+          <CountdownClock targetDate={hackathonEndDate} label="Hackathon Ends In" />
+        )}
       </div>
 
       <Separator />
@@ -330,7 +226,7 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              {hackathon.participants} / {hackathon.maxParticipants} registered
+              {hackathon.participantCount ?? 0} / {hackathon.maxParticipants} registered
             </p>
           </CardContent>
         </Card>
@@ -348,14 +244,15 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
         </Card>
       </div>
 
-      {isCompleted && hackathon.winners && (
+      {isCompleted && (
         <div className="space-y-4">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Trophy className="h-6 w-6 text-primary" />
             Winners
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
-            {hackathon.winners.map((winner, index) => (
+            {/* TODO: Fetch winners from submissions when implemented */}
+            {/* {hackathon.winners?.map((winner, index) => (
               <Card key={index} className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -401,7 +298,12 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            ))} */}
+            <Card>
+              <CardContent className="py-12">
+                <p className="text-center text-muted-foreground">Winners will be announced soon</p>
+              </CardContent>
+            </Card>
           </div>
 
           {!isWinner && (
@@ -459,7 +361,7 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {hackathon.rules?.map((rule, index) => (
+                {hackathon.rules?.map((rule: string, index: number) => (
                   <li key={index} className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <span className="text-muted-foreground">{rule}</span>
@@ -482,7 +384,7 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {hackathon.schedule?.map((item, index) => (
+                {hackathon.schedule?.map((item: { time: string; event: string }, index: number) => (
                   <div key={index} className="flex gap-4">
                     <div className="flex flex-col items-center">
                       <div className="h-2 w-2 rounded-full bg-primary" />
@@ -512,7 +414,7 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {hackathon.prizes?.map((prize, index) => (
+                {hackathon.prizes?.map((prize: { place: string; amount: string }, index: number) => (
                   <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
                     <span className="text-sm font-medium">{prize.place}</span>
                     <span className="text-sm text-primary font-semibold">{prize.amount}</span>
@@ -535,16 +437,18 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
                 <Button
                   className="w-full"
                   size="lg"
-                  disabled={!isRegistrationOpen || hackathon.participants >= hackathon.maxParticipants}
+                  disabled={!isRegistrationOpen || (hackathon.participantCount ?? 0) >= hackathon.maxParticipants || isRegistered}
                   onClick={() => setShowRegistrationDialog(true)}
                 >
-                  {hackathon.status === "closed"
-                    ? "Registration Closed"
-                    : hackathon.status === "upcoming"
-                      ? "Coming Soon"
-                      : hackathon.participants >= hackathon.maxParticipants
-                        ? "Fully Booked"
-                        : "Register Now"}
+                  {isRegistered
+                    ? "Already Registered"
+                    : hackathon.status === "closed"
+                      ? "Registration Closed"
+                      : hackathon.status === "upcoming"
+                        ? "Coming Soon"
+                        : (hackathon.participantCount ?? 0) >= hackathon.maxParticipants
+                          ? "Fully Booked"
+                          : "Register Now"}
                 </Button>
               </CardContent>
             </Card>
@@ -580,12 +484,12 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
                   </div>
                 </div>
 
-                {hackathon.requiresLinkedInPosts && (
+                {hackathon.requireLinkedIn && hackathon.linkedInPostsRequired && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">
                       LinkedIn Posts ({hackathon.linkedInPostsRequired} required)
                     </Label>
-                    {Array.from({ length: hackathon.linkedInPostsRequired! }).map((_, index) => (
+                    {Array.from({ length: hackathon.linkedInPostsRequired }).map((_, index) => (
                       <input
                         key={index}
                         type="url"
@@ -624,7 +528,7 @@ export function HackathonDetails({ hackathonId }: HackathonDetailsProps) {
                 <CardTitle>Admin Actions</CardTitle>
               </CardHeader>
               <CardContent>
-                <Link href={`/dashboard/hackathons/${hackathonId}/submissions`}>
+                <Link href={`/dashboard/hackathons/${hackathon._id}/submissions`}>
                   <Button className="w-full" size="lg">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     View Submissions

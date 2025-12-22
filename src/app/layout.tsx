@@ -3,6 +3,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Toaster } from "~/components/ui/sonner";
 import { ConvexClientProvider } from "./convex-client-provider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 export const metadata: Metadata = {
   title: "Skill Diggers",
   description:
@@ -21,10 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        
+        <NuqsAdapter>
           <ConvexClientProvider> {children}</ConvexClientProvider>
-      
-        <Toaster richColors position="top-center" />
+          <Toaster richColors position="top-center" />
+        </NuqsAdapter>
       </body>
     </html>
   );

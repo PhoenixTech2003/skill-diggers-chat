@@ -14,7 +14,7 @@ export const createHackathonFormSchema = z.object({
     prizeType: z.string().min(1, { message: "Prize type is required" }),
     allowTeams: z.boolean(),
     requireLinkedIn: z.boolean(),
-    linkedInPostsRequired: z.number().min(1, { message: "LinkedIn posts required is required" }),
+    linkedInPostsRequired: z.number().min(1, { message: "LinkedIn posts required is required" }).optional(),
     rules: z.array(z.string()).min(1, { message: "Rules are required" }),
     prizes: z.array(z.object({
         place: z.string().min(1, { message: "Place is required" }),
@@ -24,6 +24,18 @@ export const createHackathonFormSchema = z.object({
         time: z.string().min(1, { message: "Time is required" }),
         event: z.string().min(1, { message: "Event is required" }),
     })).min(1, { message: "Schedule is required" }),
-})
+}).refine(
+    (data) => {
+        // If requireLinkedIn is true, linkedInPostsRequired must be provided
+        if (data.requireLinkedIn) {
+            return data.linkedInPostsRequired !== undefined && data.linkedInPostsRequired >= 1;
+        }
+        return true;
+    },
+    {
+        message: "LinkedIn posts required is required when LinkedIn post requirement is enabled",
+        path: ["linkedInPostsRequired"],
+    }
+)
 
 export type CreateHackathonFormSchema = z.infer<typeof createHackathonFormSchema>;

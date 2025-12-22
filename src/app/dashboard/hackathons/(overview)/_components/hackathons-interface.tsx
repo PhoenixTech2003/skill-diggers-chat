@@ -1,19 +1,39 @@
 "use client"
 
-import { useState } from "react"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { Card, CardContent } from "~/components/ui/card"
 import { HackathonCard } from "./hackathon-card"
-import { Plus } from "lucide-react"
-import { usePaginatedQuery } from "convex/react";
-import { api } from "../../../../../../convex/_generated/api";
+import { Plus, Loader2 } from "lucide-react"
+import { usePaginatedQuery } from "convex/react"
+import { api } from "../../../../../../convex/_generated/api"
+import Link from "next/link"
+import { useQueryState } from "nuqs"
 
 export function HackathonsInterface() {
-  const {results, status, loadMore} = usePaginatedQuery(api.hackathon.getHackathons,{},{initialNumItems:5})
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
+  const [searchQuery, setSearchQuery] = useQueryState("search", {
+    defaultValue: "",
+    clearOnDefault: true,
+  })
+  const [activeTab, setActiveTab] = useQueryState("status", {
+    defaultValue: "all",
+    clearOnDefault: true,
+  })
+
+  // Prepare query arguments
+  const queryArgs = {
+    status: activeTab && activeTab !== "all" 
+      ? (activeTab as "open" | "upcoming" | "in-progress" | "completed" | "closed")
+      : undefined,
+    search: searchQuery && searchQuery.trim() !== "" ? searchQuery.trim() : undefined,
+  }
+
+  const { results, status, loadMore, isLoading } = usePaginatedQuery(
+    api.hackathon.getHackathons,
+    queryArgs,
+    { initialNumItems: 6 }
+  )
 
   // Transform database results to match HackathonCard interface
   const transformedHackathons = (results ?? []).map((hackathon) => ({
@@ -24,7 +44,7 @@ export function HackathonsInterface() {
     registrationEnd: hackathon.registrationEnd,
     hackathonStart: hackathon.hackathonStart,
     hackathonEnd: hackathon.hackathonEnd,
-    participants: 0, // TODO: Calculate from registrations
+    participants: hackathon.participantCount ?? 0,
     maxParticipants: hackathon.maxParticipants,
     status: hackathon.status,
     location: hackathon.location,
@@ -32,15 +52,6 @@ export function HackathonsInterface() {
     requiresLinkedInPosts: hackathon.requireLinkedIn,
     linkedInPostsRequired: hackathon.linkedInPostsRequired,
   }))
-
-  const filteredHackathons = transformedHackathons.filter((hackathon) => {
-    const matchesSearch =
-      hackathon.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      hackathon.description.toLowerCase().includes(searchQuery.toLowerCase())
-
-    if (activeTab === "all") return matchesSearch
-    return matchesSearch && hackathon.status === activeTab
-  })
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -66,21 +77,23 @@ export function HackathonsInterface() {
           <h1 className="text-3xl font-bold text-balance">Hackathons</h1>
           <p className="text-muted-foreground">Discover and join exciting coding competitions</p>
         </div>
-        <Button className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Hackathon
+        <Button className="w-full sm:w-auto" asChild>
+          <Link href="/dashboard/hackathons/create">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Hackathon
+          </Link>
         </Button>
       </div>
 
       <div className="flex flex-col gap-4">
         <Input
           placeholder="Search hackathons..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={searchQuery ?? ""}
+          onChange={(e) => setSearchQuery(e.target.value || null)}
           className="max-w-md"
         />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? "all"} onValueChange={(value) => setActiveTab(value === "all" ? null : value)}>
           <TabsList className="flex flex-wrap w-full h-auto min-h-9 sm:inline-flex sm:w-fit sm:flex-nowrap sm:h-9">
             <TabsTrigger value="all" className="sm:flex-1">All</TabsTrigger>
             <TabsTrigger value="open" className="sm:flex-1">Open</TabsTrigger>
@@ -91,13 +104,22 @@ export function HackathonsInterface() {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-6">
-            {filteredHackathons.length === 0 ? (
+            {isLoading && status === "LoadingFirstPage" ? (
+              <Card>
+                <CardContent className="py-12">
+                  <div className="text-center space-y-2">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Loading hackathons...</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : transformedHackathons.length === 0 ? (
               <Card>
                 <CardContent className="py-12">
                   <div className="text-center space-y-2">
                     <p className="text-lg font-medium">No hackathons available</p>
                     <p className="text-sm text-muted-foreground">
-                      {searchQuery || activeTab !== "all"
+                      {searchQuery || (activeTab && activeTab !== "all")
                         ? "Try adjusting your search or filter criteria"
                         : "There are no hackathons available at the moment. Check back later!"}
                     </p>
@@ -105,10 +127,36 @@ export function HackathonsInterface() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2">
-                {filteredHackathons.map((hackathon) => (
-                  <HackathonCard key={hackathon.id} hackathon={hackathon} getStatusColor={getStatusColor} />
-                ))}
+              <div className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  {transformedHackathons.map((hackathon) => (
+                    <HackathonCard key={hackathon.id} hackathon={hackathon} getStatusColor={getStatusColor} />
+                  ))}
+                </div>
+                {(status === "CanLoadMore" || status === "LoadingMore") && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      onClick={() => loadMore(6)}
+                      disabled={status === "LoadingMore"}
+                      variant="outline"
+                      className="min-w-[120px]"
+                    >
+                      {status === "LoadingMore" ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        "Load More"
+                      )}
+                    </Button>
+                  </div>
+                )}
+                {status === "Exhausted" && transformedHackathons.length > 0 && (
+                  <div className="text-center pt-4">
+                    <p className="text-sm text-muted-foreground">No more hackathons to load</p>
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>

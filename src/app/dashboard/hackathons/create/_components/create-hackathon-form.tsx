@@ -12,19 +12,26 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useFieldArray } from "react-hook-form"
 import { createHackathonFormSchema, type CreateHackathonFormSchema } from "./create-hackathon-form-schema"
-import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useMutation } from "convex/react"
+import { api } from "../../../../../../convex/_generated/api"
+import { toast } from "sonner"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
-import { ArrowLeft, Loader2, Plus, X } from "lucide-react"
+import { ArrowLeft, CalendarIcon, Loader2, Plus, X } from "lucide-react"
 import Link from "next/link"
 import { Switch } from "~/components/ui/switch"
+import { Calendar } from "~/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
+import { format } from "date-fns"
+import { cn } from "~/lib/utils"
 
 export function CreateHackathonForm() {
   const router = useRouter()
+  const createHackathon = useMutation(api.hackathon.createHackathon)
 
   const form = useForm<CreateHackathonFormSchema>({
     resolver: zodResolver(createHackathonFormSchema),
@@ -70,12 +77,44 @@ export function CreateHackathonForm() {
   const linkedInPostsRequired = form.watch("linkedInPostsRequired")
 
   const onSubmit = async (values: CreateHackathonFormSchema) => {
+    // Prepare data for mutation - ensure location is the correct type
+    const location = values.location as "virtual" | "in-person" | "hybrid"
+    const prizeType = values.prizeType as "cash" | "points"
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    // Only include linkedInPostsRequired if requireLinkedIn is true
+    const mutationData = {
+      title: values.title,
+      description: values.description,
+      fullDescription: values.fullDescription,
+      registrationStart: values.registrationStart,
+      registrationEnd: values.registrationEnd,
+      hackathonStart: values.hackathonStart,
+      hackathonEnd: values.hackathonEnd,
+      location,
+      maxParticipants: values.maxParticipants,
+      prize: values.prize,
+      prizeType,
+      requireLinkedIn: values.requireLinkedIn,
+      linkedInPostsRequired: values.requireLinkedIn ? values.linkedInPostsRequired : undefined,
+      allowTeams: values.allowTeams,
+      rules: values.rules.filter((rule) => rule.trim() !== ""), // Filter out empty rules
+      prizes: values.prizes.filter((prize) => prize.place.trim() !== "" && prize.amount.trim() !== ""), // Filter out empty prizes
+      schedule: values.schedule.filter((item) => item.time.trim() !== "" && item.event.trim() !== ""), // Filter out empty schedule items
+    }
 
-    console.log("Creating hackathon:", values)
-    
+    const promise = createHackathon(mutationData)
+
+    toast.promise(promise, {
+      loading: "Creating hackathon...",
+      success: (hackathonId) => {
+        router.push(`/dashboard/hackathons/${hackathonId.toString()}`)
+        return "Hackathon created successfully!"
+      },
+      error: (error) => {
+        console.error("Error creating hackathon:", error)
+        return error instanceof Error ? error.message : "Failed to create hackathon. Please try again."
+      },
+    })
   }
 
   return (
@@ -151,11 +190,39 @@ export function CreateHackathonForm() {
                   control={form.control}
                   name="registrationStart"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Registration Start Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => {
+                              field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                            }}
+                            disabled={(date) => date < new Date("1900-01-01")}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -165,11 +232,39 @@ export function CreateHackathonForm() {
                   control={form.control}
                   name="registrationEnd"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Registration End Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => {
+                              field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                            }}
+                            disabled={(date) => date < new Date("1900-01-01")}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -181,11 +276,39 @@ export function CreateHackathonForm() {
                   control={form.control}
                   name="hackathonStart"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Hackathon Start Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => {
+                              field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                            }}
+                            disabled={(date) => date < new Date("1900-01-01")}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -195,11 +318,39 @@ export function CreateHackathonForm() {
                   control={form.control}
                   name="hackathonEnd"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Hackathon End Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => {
+                              field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                            }}
+                            disabled={(date) => date < new Date("1900-01-01")}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
