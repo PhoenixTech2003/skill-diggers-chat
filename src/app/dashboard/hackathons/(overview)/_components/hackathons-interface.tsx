@@ -1,25 +1,38 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { Card, CardContent } from "~/components/ui/card"
 import { HackathonCard } from "./hackathon-card"
 import { Plus, Loader2 } from "lucide-react"
-import { usePaginatedQuery } from "convex/react"
+import { usePaginatedQuery, useQuery } from "convex/react"
 import { api } from "../../../../../../convex/_generated/api"
 import Link from "next/link"
 import { useQueryState } from "nuqs"
 
 export function HackathonsInterface() {
+  // Check if user is admin
+  const sessionData = useQuery(api.users.getLoggedUserSession)
+  const isAdmin = sessionData?.sessionData?.user?.role === "admin"
   const [searchQuery, setSearchQuery] = useQueryState("search", {
     defaultValue: "",
     clearOnDefault: true,
+    throttleMs: 400,
   })
   const [activeTab, setActiveTab] = useQueryState("status", {
     defaultValue: "all",
     clearOnDefault: true,
   })
+
+  // Local state for immediate input updates (not throttled)
+  const [localSearchValue, setLocalSearchValue] = useState(searchQuery ?? "")
+
+  // Sync local state with query state (for browser back/forward, etc.)
+  useEffect(() => {
+    setLocalSearchValue(searchQuery ?? "")
+  }, [searchQuery])
 
   // Prepare query arguments
   const queryArgs = {
@@ -77,19 +90,25 @@ export function HackathonsInterface() {
           <h1 className="text-3xl font-bold text-balance">Hackathons</h1>
           <p className="text-muted-foreground">Discover and join exciting coding competitions</p>
         </div>
-        <Button className="w-full sm:w-auto" asChild>
-          <Link href="/dashboard/hackathons/create">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Hackathon
-          </Link>
-        </Button>
+        {isAdmin && (
+          <Button className="w-full sm:w-auto" asChild>
+            <Link href="/dashboard/hackathons/create">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Hackathon
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-4">
         <Input
           placeholder="Search hackathons..."
-          value={searchQuery ?? ""}
-          onChange={(e) => setSearchQuery(e.target.value || null)}
+          value={localSearchValue}
+          onChange={(e) => {
+            const value = e.target.value
+            setLocalSearchValue(value)
+            setSearchQuery(value || null)
+          }}
           className="max-w-md"
         />
 

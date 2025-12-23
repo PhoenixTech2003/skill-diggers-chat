@@ -2,14 +2,16 @@ import { Suspense } from "react"
 import { SubmissionsInterface } from "./_components/submissions-interface"
 import { SubmissionsLoadingSkeleton } from "./_components/loading-skeleton"
 
-export default function HackathonSubmissionsPage({
+export default async function HackathonSubmissionsPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
+  
   return (
     <Suspense fallback={<SubmissionsLoadingSkeleton />}>
-      <SubmissionsInterface hackathonId={params.id} />
+      <SubmissionsInterface hackathonId={id} />
     </Suspense>
   )
 }
